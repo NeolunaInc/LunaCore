@@ -11,3 +11,7 @@ docker-up:
 	docker compose up -d
 docker-down:
 	docker compose down -v
+
+.PHONY: run-api
+run-api:
+	poetry run uvicorn orchestrator.app:app --host 0.0.0.0 --port 8000 --reload
