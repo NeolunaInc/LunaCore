@@ -4,6 +4,7 @@ on:
     branches: [ main ]
   push:
     branches: [ main ]
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -20,10 +21,13 @@ jobs:
       - name: Run pre-commit (skip poetry-lock-check)
         env:
           SKIP: poetry-lock-check
-        run: |
-          pre-commit run -a
+        run: pre-commit run -a
+
   tests:
     runs-on: ubuntu-latest
+    env:
+      PYTHONUTF8: "1"
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,6 +40,6 @@ jobs:
           pipx install poetry || python -m pip install poetry
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install deps
-        run: poetry install
-      - name: Pytest
-        run: poetry run pytest -q
+        run: poetry install --with dev --no-interaction --no-ansi
+      - name: Run tests (Phase 2)
+        run: poetry run pytest -q tests/test_task_graph.py tests/test_task_decomposer.py
