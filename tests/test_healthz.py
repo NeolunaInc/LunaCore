@@ -1,11 +1,15 @@
-from fastapi.testclient import TestClient
+import asyncio
 
-from orchestrator.app import app
-
-client = TestClient(app)
+import httpx
 
 
-def test_healthz_ok():
-    r = client.get("/healthz")
-    assert r.status_code == 200
-    assert r.json() == {"status": "ok"}
+async def _get_healthz():
+    async with httpx.AsyncClient(base_url="http://localhost:8000", timeout=5) as c:
+        r = await c.get("/healthz")
+        r.raise_for_status()
+        return r.json()
+
+
+def test_healthz_contract():
+    data = asyncio.run(_get_healthz())
+    assert data == {"status": "ok"}

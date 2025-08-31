@@ -10,3 +10,9 @@ repos:
   hooks:
     - id: check-merge-conflict
     - id: end-of-file-fixer
+- repo: local
+  hooks:
+    - id: poetry-lock-check
+      name: poetry lock is in sync
+      entry: bash -c 'poetry check --lock'
+      language: system

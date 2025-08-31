@@ -1,6 +1,13 @@
 # LunaCore
 
-Socle d’orchestration d’agents (Python 3.12 / FastAPI) avec outillage dev (Poetry, pre-commit, black/ruff, pytest).
+Socle d’orchestration d’agents (**Runtime unique : Python 3.12** / FastAPI) avec outillage dev (Poetry, pre-commit, black/ruff, pytest).
+
+## Installation rapide
+- [SETUP](docs/SETUP.md) — OS, Python 3.12, Docker, Poetry
+- [OPS](docs/OPS.md) — runbooks dev/QA
+- [DEPENDENCIES](docs/DEPENDENCIES.md)
+- [MASTER PLAN (Phases 2→26)](docs/PHASES/MASTER_PLAN.md)
+- [Phase 2 — TaskGraph](docs/PHASES/phase-2-taskgraph.md)
 
 ## Démarrage rapide
 
@@ -17,35 +24,27 @@ docker compose up -d db redis
 
 # API (dev)
 make run-api   # puis GET http://localhost:8000/healthz
-Variables d’environnement
-OLLAMA_BASE_URL : par défaut http://localhost:11434 (Ollama installé sur l’hôte).
-Pour vérifier : curl -s http://localhost:11434/api/tags.
+```
 
-Structure (extrait)
-graphql
-Copier le code
-orchestrator/
-  app.py            # FastAPI + /healthz
-core/
-  logging.py        # config logs JSON à l’import
-tests/
-  test_healthz.py   # test d’intégration httpx
-Makefile            # run-api, fmt, lint, test
-Board & workflows (résumé)
+## Variables d’environnement
+- `OLLAMA_BASE_URL` : par défaut http://localhost:11434 (Ollama installé sur l’hôte).
+- Pour vérifier : `curl -s http://localhost:11434/api/tags`.
+
+## Structure (extrait)
+- `orchestrator/app.py` : FastAPI + /healthz
+- `core/logging.py` : config logs JSON à l’import
+- `tests/test_healthz.py` : test d’intégration httpx
+- `Makefile` : run-api, fmt, lint, test
+
+## Board & workflows (résumé)
 Statuts : Backlog, Sprint actuel, En développement, Review/Test, Terminé.
 
-Item added to project (Issues) → Status=Backlog.
+- Item added to project (Issues) → Status=Backlog.
+- Item reopened → Status=Backlog.
+- Item closed → Status=Terminé.
+- Pull request merged → Status=Terminé.
+- Auto-add to project : filtre Repo=NeoLunaInc/LunaCore, is:issue (pas PR).
+- Auto-close issue : quand Status devient Terminé → Close issue.
+- Tri par champ numérique PhaseNo (si présent).
 
-Item reopened → Status=Backlog.
-
-Item closed → Status=Terminé.
-
-Pull request merged → Status=Terminé.
-
-Auto-add to project : filtre Repo=NeoLunaInc/LunaCore, is:issue (pas PR).
-
-Auto-close issue : quand Status devient Terminé → Close issue.
-
-Tri par champ numérique PhaseNo (si présent).
-
-Voir docs/WORKFLOWS.md pour le détail cliquable.
+Voir [docs/WORKFLOWS.md](docs/WORKFLOWS.md) pour le détail cliquable.
