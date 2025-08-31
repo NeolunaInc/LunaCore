@@ -208,3 +208,9 @@ __marimo__/
 
 # local scratch
 wf_test_*.sh
+
+# build/export artifacts
+export/
+*.sha256
+*.zip
+lunacore_phase1_export_*.{txt,md,zip}
