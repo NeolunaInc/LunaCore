@@ -1,5 +1,10 @@
 # MASTER PLAN — Phases 2 → 26
 
+> Roadmap index: [PHASES/INDEX.md](./INDEX.md) | Full roadmap: [PHASES/ROADMAP_FULL.txt](./ROADMAP_FULL.txt)
+> Phase 3 delivered via PR #44. Tag v0.3.0 if not done.
+
+---
+
 ## Phase 2 — TaskGraph & Décomposition (HAUTE)
 - Objectifs
   - Générer un DAG **déterministe** pour un plan d’entrée (YAML/JSON)
