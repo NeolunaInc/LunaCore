@@ -41,5 +41,5 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install deps
         run: poetry install --with dev --no-interaction --no-ansi
-      - name: Run tests (Phase 2)
-        run: poetry run pytest -q tests/test_task_graph.py tests/test_task_decomposer.py
+      - name: Run tests (Phase 2 + 3)
+        run: poetry run pytest -q --tb=short

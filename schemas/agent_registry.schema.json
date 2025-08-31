@@ -1,0 +1,184 @@
+{
+  "AgentSpec": {
+    "additionalProperties": false,
+    "description": "Sp\u00e9cification d'un agent IA local.",
+    "properties": {
+      "agent_id": {
+        "pattern": "^[A-Za-z0-9._-]{3,64}$",
+        "title": "Agent Id",
+        "type": "string"
+      },
+      "name": {
+        "title": "Name",
+        "type": "string"
+      },
+      "version": {
+        "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+][A-Za-z0-9.-]+)?$",
+        "title": "Version",
+        "type": "string"
+      },
+      "capabilities": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Capabilities",
+        "type": "array"
+      },
+      "endpoint": {
+        "anyOf": [
+          {
+            "format": "uri",
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Endpoint"
+      }
+    },
+    "required": [
+      "agent_id",
+      "name",
+      "version"
+    ],
+    "title": "AgentSpec",
+    "type": "object"
+  },
+  "AgentStatus": {
+    "additionalProperties": false,
+    "properties": {
+      "healthy": {
+        "default": "unknown",
+        "enum": [
+          "healthy",
+          "unhealthy",
+          "unknown"
+        ],
+        "title": "Healthy",
+        "type": "string"
+      },
+      "last_seen": {
+        "format": "date-time",
+        "title": "Last Seen",
+        "type": "string"
+      },
+      "details": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Details"
+      }
+    },
+    "title": "AgentStatus",
+    "type": "object"
+  },
+  "AgentRecord": {
+    "$defs": {
+      "AgentSpec": {
+        "additionalProperties": false,
+        "description": "Sp\u00e9cification d'un agent IA local.",
+        "properties": {
+          "agent_id": {
+            "pattern": "^[A-Za-z0-9._-]{3,64}$",
+            "title": "Agent Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+][A-Za-z0-9.-]+)?$",
+            "title": "Version",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "endpoint": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Endpoint"
+          }
+        },
+        "required": [
+          "agent_id",
+          "name",
+          "version"
+        ],
+        "title": "AgentSpec",
+        "type": "object"
+      },
+      "AgentStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "healthy": {
+            "default": "unknown",
+            "enum": [
+              "healthy",
+              "unhealthy",
+              "unknown"
+            ],
+            "title": "Healthy",
+            "type": "string"
+          },
+          "last_seen": {
+            "format": "date-time",
+            "title": "Last Seen",
+            "type": "string"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Details"
+          }
+        },
+        "title": "AgentStatus",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "spec": {
+        "$ref": "#/$defs/AgentSpec"
+      },
+      "status": {
+        "$ref": "#/$defs/AgentStatus"
+      }
+    },
+    "required": [
+      "spec"
+    ],
+    "title": "AgentRecord",
+    "type": "object"
+  }
+}

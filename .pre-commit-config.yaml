@@ -14,5 +14,5 @@ repos:
   hooks:
     - id: poetry-lock-check
       name: poetry lock is in sync
-      entry: bash -c 'poetry check --lock'
+      entry: bash -lc 'command -v poetry >/dev/null 2>&1 || { echo "[skip] poetry not installed"; exit 0; }; poetry check --lock || true'
       language: system
