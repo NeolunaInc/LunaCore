@@ -1,3 +1,1221 @@
+LunaCore — Export complet (branche=main, commit=d2a3538) — 2025-08-30T20:00:26-04:00
+
+=== LISTE DES FICHIERS INCLUS ===
+./.env
+./.github/workflows/ci.yml
+./.gitignore
+./.pre-commit-config.yaml
+./LICENSE
+./Makefile
+./README.md
+./agents/__init__.py
+./core/__init__.py
+./core/logging.py
+./docker-compose.yml
+./docs/ARCHITECTURE.md
+./docs/DECISIONS.md
+./docs/DEVELOPMENT.md
+./docs/ROADMAP.md
+./docs/WORKFLOWS.md
+./docs/phases/phase-1-orchestrator.md
+./gh_seed_lunacore.sh
+./issues_seed_min.sh
+./orchestrator/__init__.py
+./orchestrator/app.py
+./phase0_bootstrap.sh
+./poetry.lock
+./pyproject.toml
+./services/__init__.py
+./tests/test_healthz.py
+./tests/test_smoke.py
+
+-----8<----- FILE: ./.env -----
+OLLAMA_BASE_URL=http://localhost:11434
+
+-----8<----- END FILE: ./.env -----
+
+-----8<----- FILE: ./.github/workflows/ci.yml -----
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install deps
+        run: poetry install
+      - name: Lint
+        run: poetry run ruff check . && poetry run black --check .
+      - name: Tests
+        run: poetry run pytest -q --maxfail=1 --disable-warnings
+
+-----8<----- END FILE: ./.github/workflows/ci.yml -----
+
+-----8<----- FILE: ./.gitignore -----
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# local scratch
+wf_test_*.sh
+
+-----8<----- END FILE: ./.gitignore -----
+
+-----8<----- FILE: ./.pre-commit-config.yaml -----
+repos:
+- repo: https://github.com/psf/black
+  rev: 24.4.2
+  hooks: [ { id: black } ]
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.5.4
+  hooks: [ { id: ruff, args: ["--fix"] } ]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.6.0
+  hooks:
+    - id: check-merge-conflict
+    - id: end-of-file-fixer
+
+-----8<----- END FILE: ./.pre-commit-config.yaml -----
+
+-----8<----- FILE: ./LICENSE -----
+MIT License
+
+Copyright (c) 2025 NeolunaInc
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----8<----- END FILE: ./LICENSE -----
+
+-----8<----- FILE: ./Makefile -----
+.PHONY: install fmt lint test docker-up docker-down
+install:
+	poetry install
+fmt:
+	poetry run black .
+lint:
+	poetry run ruff check .
+test:
+	poetry run pytest
+docker-up:
+	docker compose up -d
+docker-down:
+	docker compose down -v
+
+.PHONY: run-api
+run-api:
+	poetry run uvicorn orchestrator.app:app --host 0.0.0.0 --port 8000 --reload
+
+-----8<----- END FILE: ./Makefile -----
+
+-----8<----- FILE: ./README.md -----
+# LunaCore
+
+Socle d’orchestration d’agents (Python 3.12 / FastAPI) avec outillage dev (Poetry, pre-commit, black/ruff, pytest).
+
+## Démarrage rapide
+
+```bash
+# Dépendances Python
+poetry install
+poetry run pre-commit install
+
+# Qualité & tests
+make fmt && make lint && make test
+
+# Services de base
+docker compose up -d db redis
+
+# API (dev)
+make run-api   # puis GET http://localhost:8000/healthz
+Variables d’environnement
+OLLAMA_BASE_URL : par défaut http://localhost:11434 (Ollama installé sur l’hôte).
+Pour vérifier : curl -s http://localhost:11434/api/tags.
+
+Structure (extrait)
+graphql
+Copier le code
+orchestrator/
+  app.py            # FastAPI + /healthz
+core/
+  logging.py        # config logs JSON à l’import
+tests/
+  test_healthz.py   # test d’intégration httpx
+Makefile            # run-api, fmt, lint, test
+Board & workflows (résumé)
+Statuts : Backlog, Sprint actuel, En développement, Review/Test, Terminé.
+
+Item added to project (Issues) → Status=Backlog.
+
+Item reopened → Status=Backlog.
+
+Item closed → Status=Terminé.
+
+Pull request merged → Status=Terminé.
+
+Auto-add to project : filtre Repo=NeoLunaInc/LunaCore, is:issue (pas PR).
+
+Auto-close issue : quand Status devient Terminé → Close issue.
+
+Tri par champ numérique PhaseNo (si présent).
+
+Voir docs/WORKFLOWS.md pour le détail cliquable.
+
+-----8<----- END FILE: ./README.md -----
+
+-----8<----- FILE: ./agents/__init__.py -----
+
+-----8<----- END FILE: ./agents/__init__.py -----
+
+-----8<----- FILE: ./core/__init__.py -----
+
+-----8<----- END FILE: ./core/__init__.py -----
+
+-----8<----- FILE: ./core/logging.py -----
+import json
+import logging
+import sys
+
+
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {"level": record.levelname, "logger": record.name, "msg": record.getMessage()}
+        if record.exc_info:
+            payload["exc_info"] = self.formatException(record.exc_info)
+        return json.dumps(payload, ensure_ascii=False)
+
+
+_handler = logging.StreamHandler(sys.stdout)
+_handler.setFormatter(JsonFormatter())
+logging.basicConfig(handlers=[_handler], level=logging.INFO, force=True)
+
+-----8<----- END FILE: ./core/logging.py -----
+
+-----8<----- FILE: ./docker-compose.yml -----
+version: "3.9"
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: lunacore
+    ports: ["5432:5432"]
+    volumes: [ "db_data:/var/lib/postgresql/data" ]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes: [ "ollama_data:/root/.ollama" ]
+volumes:
+  db_data: {}
+  ollama_data: {}
+
+-----8<----- END FILE: ./docker-compose.yml -----
+
+-----8<----- FILE: ./docs/ARCHITECTURE.md -----
+
+Architecture (aperçu)
+FastAPI Orchestrator (orchestrator/app.py) : Endpoints, health, wiring services.
+
+Core logging (core/logging.py) : configuration logs JSON à l’import.
+
+Tests (tests/) : Pytest, intégration via httpx.
+
+Futur :
+
+services/ : adaptateurs et appels modèles (Ollama), patterns ports/adapters.
+
+Observabilité : métriques, traces (Phase 24).
+
+Packaging & Delivery : images, versioning, CD (Phase 18).
+
+Contrats
+Réponses JSON stables (champ status, message, data).
+
+Journalisation corrélée (trace_id) à introduire en Phase 2/24.
+
+-----8<----- END FILE: ./docs/ARCHITECTURE.md -----
+
+-----8<----- FILE: ./docs/DECISIONS.md -----
+
+ADR-0001 — Ollama host (11434) vs container
+Décision
+Nous conservons Ollama installé sur l’hôte (port 11434) et non le service Docker pour éviter les conflits et simplifier l’admin.
+
+Raisons
+Déjà présent et opérationnel avec llama3:8b.
+
+Moins de friction réseau, pas de port clash avec compose.
+
+Simplicité pour les tests locaux.
+
+Comment basculer vers le conteneur (si besoin)
+Ajouter service ollama dans docker-compose.yml (profiles: ["ollama"]).
+
+Exporter OLLAMA_BASE_URL=http://localhost:11434 vers le conteneur.
+
+S’assurer que le port 11434 n’est pas déjà occupé par l’hôte.
+
+-----8<----- END FILE: ./docs/DECISIONS.md -----
+
+-----8<----- FILE: ./docs/DEVELOPMENT.md -----
+
+Guide Développement
+Prérequis
+Python 3.12, Poetry, Docker, Docker Compose.
+
+Outils : black, ruff, pytest, pre-commit.
+
+Installation
+bash
+Copier le code
+poetry install
+poetry run pre-commit install
+Lancer l’API
+bash
+Copier le code
+make run-api
+# puis GET http://localhost:8000/healthz
+Qualité & tests
+bash
+Copier le code
+make fmt && make lint && make test
+Services de base
+bash
+Copier le code
+docker compose up -d db redis
+Ollama (modèle local)
+Par défaut nous utilisons Ollama sur l’hôte (port 11434).
+
+Déclarer: echo "OLLAMA_BASE_URL=http://localhost:11434" >> .env
+
+Vérifier: curl -s http://localhost:11434/api/tags
+
+Stratégie Git
+Branches par phase/feature: feat/phaseN-…
+
+PR avec label phase:N, squash & merge.
+
+Hooks pre-commit actifs (black/ruff/end-of-file/merge-conflicts).
+
+-----8<----- END FILE: ./docs/DEVELOPMENT.md -----
+
+-----8<----- FILE: ./docs/ROADMAP.md -----
+
+Roadmap LunaCore
+Vue synthétique
+PhaseTitre (extrait)StatutNotes
+0Bootstrap & socle d’ingénierieBacklog
+1Orchestrator minimal /healthz (FastAPI)TerminéEndpoint + test httpx + run-api
+6ExecutionOrchestrator v1Backlog
+18Packaging & DeliveryBacklog
+19CI/CD & EnvironnementsBacklog
+21Orchestrator v2 (Parallélisme)Backlog
+22External Agent PluginBacklog
+23CreativeEnhancementAgentBacklog
+24Observabilité & métriquesBacklog
+25SLOs, KPIs & CostingBacklog
+26Durcissement Production & GouvernanceBacklog
+
+La liste complète et l’ordre sont pilotés dans le GitHub Project via le champ PhaseNo + tri ascendant.
+
+Prochaine étape (Phase 2 — squelette services)
+Squelette services/ avec interface d’appel modèle (via OLLAMA_BASE_URL).
+
+Endpoint /v1/generate (stub) + test d’intégration.
+
+Journalisation corrélée (trace_id) et réponses JSON standardisées.
+
+-----8<----- END FILE: ./docs/ROADMAP.md -----
+
+-----8<----- FILE: ./docs/WORKFLOWS.md -----
+
+Workflows Project (GitHub)
+1) Item added to project — Issues uniquement
+Type : Issue ✅ | Pull request ❌
+
+Action : Set value → Status = Backlog
+
+Toggle : On
+
+2) Item reopened
+Action : Set value → Status = Backlog
+
+Toggle : On
+
+3) Item closed
+Action : Set value → Status = Terminé
+
+Toggle : On
+
+4) Auto-add to project (ajout auto)
+Repository : NeoLunaInc/LunaCore
+
+Query : is:issue (optionnel is:open)
+
+Action : Add the item to the project
+
+Si l’UI exige un Set value, choisir Status=Backlog.
+
+5) Pull request merged
+Action : Set value → Status = Terminé
+
+Toggle : On
+
+6) Auto-close issue
+Trigger : When the status is updated
+
+Filtre : Status: Terminé
+
+Action : Close the issue
+
+Toggle : On
+
+7) Auto-archive items (optionnel)
+Filtre : is:issue is:closed updated:<@today-2w
+
+Action : Archive item
+
+Toggle : On
+
+Astuce tri : ajouter un champ Number nommé PhaseNo, le renseigner, puis Sort by PhaseNo (ascending) sur la Board.
+
+-----8<----- END FILE: ./docs/WORKFLOWS.md -----
+
+-----8<----- FILE: ./docs/phases/phase-1-orchestrator.md -----
+
+Phase 1 — Orchestrator minimal
+Livrables
+Endpoint GET /healthz → {"status":"ok"}
+
+Test d’intégration httpx
+
+Cible make run-api
+
+Vérification
+bash
+Copier le code
+poetry run pytest -q      # 1 passed
+make run-api              # → http://localhost:8000/healthz
+Notes
+Logs JSON via core/logging (activé à l’import).
+
+OLLAMA_BASE_URL défini côté hôte pour les phases suivantes.
+
+-----8<----- END FILE: ./docs/phases/phase-1-orchestrator.md -----
+
+-----8<----- FILE: ./gh_seed_lunacore.sh -----
+#!/usr/bin/env bash
+# gh_seed_lunacore.sh — Seed labels, milestones, and 26 issues for LunaCore
+# Usage: ./gh_seed_lunacore.sh [owner/repo] ["LunaCore Development Tracker"]
+# Requires: GitHub CLI (gh) authenticated with repo scope.
+set -euo pipefail
+
+REPO="${1:-NeoLunaInc/LunaCore}"
+PROJECT_NAME="${2:-LunaCore Development Tracker}"
+
+echo "🔐 Checking GitHub CLI auth..."
+gh auth status >/dev/null
+
+echo "📦 Target repo: $REPO"
+echo "🗂  Target project: $PROJECT_NAME (optional link step)"
+
+# ---------- Labels ----------
+echo "🏷️  Creating/refreshing labels..."
+# phase labels
+gh label create "phase:foundation"      --repo "$REPO" --color "0969da" --description "Phases 0-8: Core du système" || gh label edit "phase:foundation" --repo "$REPO" --color "0969da" --description "Phases 0-8: Core du système"
+gh label create "phase:critical-infra"  --repo "$REPO" --color "d73a49" --description "Phases 9-12: Infrastructure critique" || gh label edit "phase:critical-infra" --repo "$REPO" --color "d73a49" --description "Phases 9-12: Infrastructure critique"
+gh label create "phase:interface"       --repo "$REPO" --color "0e8a16" --description "Phases 13-16: Interfaces utilisateur" || gh label edit "phase:interface" --repo "$REPO" --color "0e8a16" --description "Phases 13-16: Interfaces utilisateur"
+gh label create "phase:advanced"        --repo "$REPO" --color "fbca04" --description "Phases 17-21: Avancées & perfs" || gh label edit "phase:advanced" --repo "$REPO" --color "fbca04" --description "Phases 17-21: Avancées & perfs"
+gh label create "phase:enterprise"      --repo "$REPO" --color "a371f7" --description "Phases 22-26: Enterprise & polish" || gh label edit "phase:enterprise" --repo "$REPO" --color "a371f7" --description "Phases 22-26: Enterprise & polish"
+# priority labels
+gh label create "priority:critical"     --repo "$REPO" --color "b60205" --description "Bloquant - À faire immédiatement" || gh label edit "priority:critical" --repo "$REPO" --color "b60205" --description "Bloquant - À faire immédiatement"
+gh label create "priority:high"         --repo "$REPO" --color "ff9800" --description "Important - Sprint en cours" || gh label edit "priority:high" --repo "$REPO" --color "ff9800" --description "Important - Sprint en cours"
+gh label create "priority:medium"       --repo "$REPO" --color "fbca04" --description "Moyen - À planifier" || gh label edit "priority:medium" --repo "$REPO" --color "fbca04" --description "Moyen - À planifier"
+gh label create "priority:low"          --repo "$REPO" --color "d4c5f9" --description "Faible - Backlog" || gh label edit "priority:low" --repo "$REPO" --color "d4c5f9" --description "Faible - Backlog"
+# type labels
+gh label create "type:feature"          --repo "$REPO" --color "a2eeef" --description "Nouvelle fonctionnalité" || gh label edit "type:feature" --repo "$REPO" --color "a2eeef" --description "Nouvelle fonctionnalité"
+gh label create "type:bug"              --repo "$REPO" --color "d73a4a" --description "Bug à corriger" || gh label edit "type:bug" --repo "$REPO" --color "d73a4a" --description "Bug à corriger"
+gh label create "type:documentation"    --repo "$REPO" --color "0075ca" --description "Docs & guides" || gh label edit "type:documentation" --repo "$REPO" --color "0075ca" --description "Docs & guides"
+gh label create "type:test"             --repo "$REPO" --color "c5def5" --description "Tests & QA" || gh label edit "type:test" --repo "$REPO" --color "c5def5" --description "Tests & QA"
+
+# ---------- Milestones ----------
+echo "🎯 Creating/refreshing milestones..."
+ms1="MVP Fonctionnel (Phases 0-8)"
+ms2="Production Ready (Phases 9-12)"
+ms3="Interface Complète (Phases 13-16)"
+ms4="Optimisations (Phases 17-21)"
+ms5="Enterprise (Phases 22-26)"
+
+for ms in "$ms1" "$ms2" "$ms3" "$ms4" "$ms5"; do
+  if gh api -H "Accept: application/vnd.github+json" "/repos/${REPO}/milestones?state=all" | jq -e ".[] | select(.title==\"${ms}\")" >/dev/null 2>&1; then
+    echo "Milestone '${ms}' already exists."
+  else
+    gh milestone create --repo "$REPO" --title "${ms}" --description "${ms}"
+  fi
+done
+
+# Helper: map phase -> milestone & labels
+phase_label() {
+  local n=$1
+  if   (( n <= 8 ));  then echo "phase:foundation"
+  elif (( n <= 12 )); then echo "phase:critical-infra"
+  elif (( n <= 16 )); then echo "phase:interface"
+  elif (( n <= 21 )); then echo "phase:advanced"
+  else                    echo "phase:enterprise"
+  fi
+}
+phase_milestone() {
+  local n=$1
+  if   (( n <= 8 ));  then echo "$ms1"
+  elif (( n <= 12 )); then echo "$ms2"
+  elif (( n <= 16 )); then echo "$ms3"
+  elif (( n <= 21 )); then echo "$ms4"
+  else                    echo "$ms5"
+  fi
+}
+phase_priority() {
+  local n=$1
+  case "$n" in
+    0) echo "priority:critical" ;;
+    1|2|3|4|5|6|7) echo "priority:high" ;;
+    8) echo "priority:high" ;;
+    9|10|11|12) echo "priority:high" ;;
+    13|14|15|16) echo "priority:high" ;;
+    17) echo "priority:medium" ;;
+    18|19|21|24) echo "priority:high" ;;
+    20|26) echo "priority:critical" ;;
+    22|23|25) echo "priority:low" ;;
+    *) echo "priority:medium" ;;
+  esac
+}
+
+# ---------- Issues ----------
+echo "📝 Creating 26 issues..."
+
+issue() {
+  local num="$1"
+  local title="$2"
+  local body="$3"
+  local labels
+  labels="$(phase_label "$num"),$(phase_priority "$num"),type:feature"
+  local milestone
+  milestone="$(phase_milestone "$num")"
+
+  echo "… Issue Phase $num: $title"
+  gh issue create --repo "$REPO" \
+    --title "Phase ${num}: ${title}" \
+    --body "$body" \
+    --label "$labels" \
+    --milestone "$milestone" >/dev/null
+
+  # Optional: add to repository project (uncomment if using Projects v2 under the same owner)
+  # last_issue=$(gh issue list --repo "$REPO" --search "Phase ${num}: ${title}" --limit 1 --json number --jq '.[0].number')
+  # gh issue edit "$last_issue" --repo "$REPO" --add-project "$PROJECT_NAME"
+}
+
+# Bodies
+b0=$'# Durée: 2-3 jours
+# Priorité: CRITIQUE
+
+## Objectifs
+- Mono-repo Python (Poetry)
+- Outillage qualité (lint/format/tests, pre-commit)
+- Docker-compose (PostgreSQL, Redis, Ollama)
+
+## Livrables
+- [ ] pyproject.toml (dépendances core)
+- [ ] Makefile (install/test/lint/docker-up/down)
+- [ ] .github/workflows/ci.yml
+- [ ] docker-compose.yml (PostgreSQL, Redis, Ollama)
+- [ ] Structure: core/, orchestrator/, agents/, services/
+- [ ] Logging JSON structuré
+- [ ] Tests \"hello world\"
+
+## Critères d\'acceptation
+- [ ] Pipeline CI/CD vert sur GitHub Actions
+- [ ] Docker-compose démarre sans erreur
+- [ ] make install/test/lint fonctionnent
+- [ ] Logs au format JSON
+- [ ] pre-commit hooks actifs'acceptation
+- [ ] Pipeline GitHub Actions vert
+- [ ] docker-compose up OK
+- [ ] make install/test/lint OK
+- [ ] Logs JSON visibles
+- [ ] pre-commit hooks actifs'acceptation\n- [ ] CI/CD vert sur GitHub Actions\n- [ ] docker-compose up démarre sans erreur\n- [ ] make install/test/lint fonctionnent\n- [ ] Logs en JSON\n- [ ] Pre-commit hooks actifs'
+b1=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 0\n\n## Objectifs\n- Format d’entrée des plans (YAML/JSON)\n- JSON Schema strict\n- PlanValidatorAgent\n\n## Livrables\n- [ ] schemas/plan.schema.json\n- [ ] examples/plans/ (≥10 – valides & invalides)\n- [ ] core/plan_types.py\n- [ ] agents/plan_validator/\n- [ ] Documentation format de plan\n\n## Critères d\'acceptation\n- [ ] Détecte 100% des plans incomplets\n- [ ] Messages d’erreur clairs\n- [ ] Tests cas limites\n- [ ] Validation < 100ms'
+b2=$'# Durée: 4 jours
+# Priorité: HAUTE
+# Prérequis: Phase 1
+
+## Objectifs
+- TaskDecomposerAgent → DAG déterministe
+- Types: generate_code, assemble, validate, test, package, deploy
+- Dépendances et hash stable
+
+## Livrables
+- [ ] core/task_graph.py (Task/Edge/Artifacts)
+- [ ] agents/task_decomposer/
+- [ ] Export JSON + visualisation DAG
+- [ ] Hash stable pour idempotence
+
+## Critères d\'acceptation
+- [ ] Même plan → même DAG (hash identique)
+- [ ] DAG pour CRUD REST ≈ 30–50 tâches
+- [ ] Export JSON du graphe
+- [ ] Pas de cycles dans le graphe'acceptation
+- [ ] Même plan → même DAG (hash identique)
+- [ ] CRUD REST ≈ 30–50 tâches
+- [ ] Export JSON du graphe
+- [ ] Aucun cycle'acceptation\n- [ ] Même plan → même DAG (hash identique)\n- [ ] CRUD REST ≈ 30–50 tâches\n- [ ] Export JSON du graphe\n- [ ] Aucun cycle'
+b3=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 2\n\n## Objectifs\n- Registre d’agents en mémoire\n- Interface standardisée + métadonnées\n- Health-check périodique\n\n## Livrables\n- [ ] services/agent_registry/\n- [ ] core/agent_types.py\n- [ ] 3 agents locaux (CodeGenerator, Validator, Assembly)\n- [ ] Health-check par agent\n\n## Critères d\'acceptation\n- [ ] Register/unregister dynamiques\n- [ ] Health-check ~30s\n- [ ] Schemas I/O validés'
+b4=$'# Durée: 2 jours\n# Priorité: HAUTE\n# Prérequis: Phase 3\n\n## Objectifs\n- Pub/Sub in-process typé\n- Événements: task.started/completed/failed, escalation.needed\n- Handlers asynchrones, ordre garanti\n\n## Livrables\n- [ ] services/event_bus/bus_inmem.py\n- [ ] core/events.py\n- [ ] Pattern-matching\n- [ ] Tests de livraison ordonnée\n\n## Critères d\'acceptation\n- [ ] Subscribe wildcards (task.*)\n- [ ] Émission async\n- [ ] Pas de perte d’événements'
+b5=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 4\n\n## Objectifs\n- API mémoire projet (artifacts)\n- Stockage local/disk (baseline)\n- ACL logique (prépare multi-tenant)\n\n## Livrables\n- [ ] services/memory/\n- [ ] APIs CRUD artifacts\n- [ ] Index & métadonnées\n- [ ] Tests intégration\n\n## Critères d\'acceptation\n- [ ] Artifacts persistés & listables\n- [ ] ACLs respectées'
+b6=$'# Durée: 5 jours\n# Priorité: HAUTE\n# Prérequis: Phase 5\n\n## Objectifs\n- Orchestrateur d’exécution v1\n- Scheduling séquentiel, reprise sur erreur\n- Hooks événements\n\n## Livrables\n- [ ] orchestrator/executor_v1.py\n- [ ] Policies retry/backoff\n- [ ] Tests d’intégration\n\n## Critères d\'acceptation\n- [ ] Exécutions reproductibles\n- [ ] Journal d’exécution complet'
+b7=$'# Durée: 5 jours\n# Priorité: HAUTE\n# Prérequis: Phase 6\n\n## Objectifs\n- Agents cœur v1 (génération, validation, assemblage)\n- Contrats d’interface stables\n\n## Livrables\n- [ ] agents/code_generator/\n- [ ] agents/validator/\n- [ ] agents/assembly/\n- [ ] Tests unitaires\n\n## Critères d\'acceptation\n- [ ] Contrats respectés\n- [ ] Tests verts'
+b8=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 7\n\n## Objectifs\n- Chaîne d’escalade (local → OpenAI → human)\n- Politique de seuils/timeout\n\n## Livrables\n- [ ] services/escalation/\n- [ ] Config chain & policies\n- [ ] Tests E2E happy path / fallback\n\n## Critères d\'acceptation\n- [ ] Escalade déclenchée selon règles\n- [ ] Traçabilité complète'
+b9=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 8\n\n## Objectifs\n- Logs JSON, métriques Prometheus, traces OpenTelemetry\n\n## Livrables\n- [ ] Logging JSON structuré\n- [ ] /metrics exposé\n- [ ] Traces de bout-en-bout\n\n## Critères d\'acceptation\n- [ ] Corrélation (correlation_id)\n- [ ] Métriques visibles'
+b10=$'# Durée: 4 jours\n# Priorité: HAUTE\n# Prérequis: Phase 9\n\n## Objectifs\n- EventBus v2 (NATS + WAL + DLQ)\n\n## Livrables\n- [ ] services/event_bus/nats_*\n- [ ] Persistence + DLQ\n- [ ] Tests de fiabilité\n\n## Critères d\'acceptation\n- [ ] Pas de perte d’événements\n- [ ] Rejouabilité'
+b11=$'# Durée: 4 jours\n# Priorité: HAUTE\n# Prérequis: Phase 10\n\n## Objectifs\n- PostgreSQL (RLS + chiffrement)\n\n## Livrables\n- [ ] migrations & schéma\n- [ ] RLS par tenant\n- [ ] Chiffrement au repos\n\n## Critères d\'acceptation\n- [ ] RLS vérifié par tests\n- [ ] Intégration memory/registry'
+b12=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 11\n\n## Objectifs\n- Audit & mémoire d’exécution\n\n## Livrables\n- [ ] services/audit/\n- [ ] Journal détaillé des actions\n- [ ] Requête et export audit\n\n## Critères d\'acceptation\n- [ ] Traçabilité complète\n- [ ] Export JSON/CSV'
+b13=$'# Durée: 5 jours\n# Priorité: HAUTE\n# Prérequis: Phase 12\n\n## Objectifs\n- Dashboard React + Vite + WebSocket\n\n## Livrables\n- [ ] dashboard/\n- [ ] Views: status, runs, logs\n- [ ] WS live updates\n\n## Critères d\'acceptation\n- [ ] Navigation fluide\n- [ ] Tests UI de base'
+b14=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 13\n\n## Objectifs\n- AgentRegistry v2 (hot-reload, remote)\n\n## Livrables\n- [ ] Hot-reload / remote discovery\n- [ ] Tests\n\n## Critères d\'acceptation\n- [ ] Reload sans downtime'
+b15=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 14\n\n## Objectifs\n- Sécurité/Gateway: tokenization, PII masking\n\n## Livrables\n- [ ] Middlewares sécurité\n- [ ] Policies de tokenization\n- [ ] Tests\n\n## Critères d\'acceptation\n- [ ] Aucune PII en clair'
+b16=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 15\n\n## Objectifs\n- Human-in-the-Loop console\n\n## Livrables\n- [ ] UI approbation/feedback\n- [ ] Journal des interventions\n\n## Critères d\'acceptation\n- [ ] Interventions tracées'
+b17=$'# Durée: 4 jours\n# Priorité: MOYENNE\n# Prérequis: Phase 16\n\n## Objectifs\n- Générer 2-3 variantes + résolution pondérée\n- A/B testing avec métriques\n\n## Livrables\n- [ ] orchestrator/solution_resolver.py\n- [ ] Métriques de qualité\n- [ ] Sandbox de comparaison\n\n## Critères d\'acceptation\n- [ ] ≥2 variantes\n- [ ] Sélection reproductible\n- [ ] Coûts maîtrisés'
+b18=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 17\n\n## Objectifs\n- Packaging (docker/zip/git) + SBOM + manifests K8s\n\n## Livrables\n- [ ] agents/packaging/\n- [ ] infra/helm/\n- [ ] SBOM generation\n\n## Critères d\'acceptation\n- [ ] Image docker construite\n- [ ] SBOM complet\n- [ ] Artifacts téléchargeables'
+b19=$'# Durée: 3 jours\n# Priorité: HAUTE\n# Prérequis: Phase 18\n\n## Objectifs\n- CI/CD complet + environnements dev/staging/prod\n\n## Livrables\n- [ ] .github/workflows/ étendus\n- [ ] scripts/ci/\n- [ ] docs/ci.md\n\n## Critères d\'acceptation\n- [ ] Build→Test→Scan→Deploy\n- [ ] Coverage > 80%\n- [ ] Rollback auto'
+b20=$'# Durée: 4 jours\n# Priorité: CRITIQUE\n# Prérequis: Phase 19\n\n## Objectifs\n- RBAC (admin/operator/viewer)\n- Isolation tenant/project\n- Quotas & limites\n\n## Livrables\n- [ ] services/authz/rbac.py\n- [ ] Middlewares globaux\n- [ ] Policies EventBus/Memory\n- [ ] Tests d’étanchéité\n\n## Critères d\'acceptation\n- [ ] Zéro cross-tenant access\n- [ ] Quotas enforced\n- [ ] Audit des accès'
+b21=$'# Durée: 5 jours\n# Priorité: HAUTE\n# Prérequis: Phase 20\n\n## Objectifs\n- Exécution parallèle par batch\n- Worker pool + backpressure + rate limiting\n\n## Livrables\n- [ ] orchestrator/parallel_executor.py\n- [ ] Worker pool mgmt\n- [ ] Resource allocation policies\n- [ ] Perf monitoring\n\n## Critères d\'acceptation\n- [ ] 10x sur gros DAG\n- [ ] Pas de starvation\n- [ ] Tests stress 100+ tâches'
+b22=$'# Durée: 3 jours\n# Priorité: BASSE\n# Prérequis: Phase 21\n\n## Objectifs\n- Plugins agents externes (discovery, sandbox, isolation réseau)\n\n## Livrables\n- [ ] services/agent_registry/plugins.py\n- [ ] services/network/policies.yaml\n- [ ] Onboarding workflow\n\n## Critères d\'acceptation\n- [ ] Discovery endpoint\n- [ ] Network policies appliquées'
+b23=$'# Durée: 2 jours\n# Priorité: BASSE\n# Prérequis: Phase 22\n\n## Objectifs\n- CreativeEnhancementAgent (opt-in, jamais remplacer specs)\n\n## Livrables\n- [ ] agents/creative_enhancement/\n- [ ] Policies opt-in + traçabilité\n\n## Critères d\'acceptation\n- [ ] ≤3 variantes\n- [ ] Audit trail'
+b24=$'# Durée: 4 jours\n# Priorité: HAUTE\n# Prérequis: Phase 23\n\n## Objectifs\n- Observabilité prod (Prometheus, Grafana, ELK/OpenSearch, alerting)\n\n## Livrables\n- [ ] infra/observability/\n- [ ] Dashboards JSON\n- [ ] Alert rules\n- [ ] docs/observability.md\n\n## Critères d\'acceptation\n- [ ] Métriques exposées\n- [ ] Dashboards SLO/SLI\n- [ ] Alertes critiques'
+b25=$'# Durée: 3 jours\n# Priorité: BASSE\n# Prérequis: Phase 24\n\n## Objectifs\n- SLOs/KPIs & costing (budget caps + alertes)\n\n## Livrables\n- [ ] services/metrics/kpis.py\n- [ ] services/costing/tracker.py\n- [ ] Rapports périodiques\n\n## Critères d\'acceptation\n- [ ] Coût par appel tracé\n- [ ] Budget enforced\n- [ ] Rapports CSV/JSON\n- [ ] Alertes dépassement'
+b26=$'# Durée: 5 jours\n# Priorité: CRITIQUE\n# Prérequis: Phase 25\n\n## Objectifs\n- Durcissement production & gouvernance (signature agents, backups, DR, chaos)\n\n## Livrables\n- [ ] docs/governance.md\n- [ ] services/agent_registry/signing.py\n- [ ] Runbooks SRE\n- [ ] Chaos tests\n\n## Critères d\'acceptation\n- [ ] Agents signés obligatoires\n- [ ] Backup+restore testés (RTO < 1h)\n- [ ] Game day réussi'
+
+# Create issues
+issue 0  "Bootstrap & Socle d'Ingénierie"          "$b0"
+issue 1  "Ingestion du Plan Détaillé & Schémas"    "$b1"
+issue 2  "Modélisation TaskGraph & Décomposition"  "$b2"
+issue 3  "AgentRegistry v1 (Local)"                "$b3"
+issue 4  "EventBus v1 (In-Process)"                "$b4"
+issue 5  "ProjectMemoryManager v1 (Baseline)"      "$b5"
+issue 6  "ExecutionOrchestrator v1"                "$b6"
+issue 7  "Agents Cœur v1"                          "$b7"
+issue 8  "Escalation Chain (Human/AI)"             "$b8"
+issue 9  "Logs/Metrics/Tracing v1"                 "$b9"
+issue 10 "EventBus v2 (NATS + WAL + DLQ)"          "$b10"
+issue 11 "PostgreSQL (RLS + Chiffrement)"          "$b11"
+issue 12 "Audit & Mémoire d’Exécution"             "$b12"
+issue 13 "Dashboard v1 (React + WS)"               "$b13"
+issue 14 "AgentRegistry v2 (Hot-Reload, Remote)"   "$b14"
+issue 15 "Security/Gateway (Tokenization/PII)"     "$b15"
+issue 16 "Human-in-the-Loop Console"               "$b16"
+issue 17 "Solutions Concurrentes & A/B"            "$b17"
+issue 18 "Packaging & Delivery"                    "$b18"
+issue 19 "CI/CD & Environnements"                  "$b19"
+issue 20 "Multi-tenancy Stricte & RBAC"            "$b20"
+issue 21 "Orchestrator v2 (Parallélisme)"          "$b21"
+issue 22 "External Agent Plugin"                   "$b22"
+issue 23 "CreativeEnhancementAgent"                "$b23"
+issue 24 "Observabilité Production"                "$b24"
+issue 25 "SLOs, KPIs & Costing"                    "$b25"
+issue 26 "Durcissement Production & Gouvernance"   "$b26"
+
+echo "✅ Done. Issues, labels, and milestones created for $REPO."
+
+-----8<----- END FILE: ./gh_seed_lunacore.sh -----
+
+-----8<----- FILE: ./issues_seed_min.sh -----
+#!/usr/bin/env bash
+set -euo pipefail
+REPO="${1:-NeoLunaInc/LunaCore}"
+PROJECT_KEY="${2:-}"   # peut être un titre ("LunaCore Development Tracker") ou un numéro (6)
+
+# Résout le numéro du project depuis un titre si besoin
+project_num() {
+  local key="$1"
+  if [[ -z "$key" ]]; then echo ""; return; fi
+  if [[ "$key" =~ ^[0-9]+$ ]]; then echo "$key"; return; fi
+  local owner="${REPO%/*}"
+  gh project list --owner "$owner" --format json \
+    --jq ".[] | select(.title==\"$key\") | .number" | head -n1
+}
+
+MS1="MVP Fonctionnel (Phases 0-8)"; MS2="Production Ready (Phases 9-12)"
+MS3="Interface Complète (Phases 13-16)"; MS4="Optimisations (Phases 17-21)"
+MS5="Enterprise (Phases 22-26)"
+
+phase_label(){ n=$1; if ((n<=8)); then echo phase:foundation; elif ((n<=12)); then echo phase:critical-infra; elif ((n<=16)); then echo phase:interface; elif ((n<=21)); then echo phase:advanced; else echo phase:enterprise; fi; }
+phase_milestone(){ n=$1; if ((n<=8)); then echo "$MS1"; elif ((n<=12)); then echo "$MS2"; elif ((n<=16)); then echo "$MS3"; elif ((n<=21)); then echo "$MS4"; else echo "$MS5"; fi; }
+phase_priority(){ n=$1; case "$n" in 0|20|26) echo priority:critical;; 17|22|23|25) echo priority:low;;  *) echo priority:high;; esac; }
+
+mk(){ local num="$1"; shift; local title="$1"; shift
+  local labels="$(phase_label "$num"),$(phase_priority "$num"),type:feature"
+  local ms="$(phase_milestone "$num")"
+  local tmp; tmp="$(mktemp)"; cat >"$tmp"
+  gh issue create --repo "$REPO" --title "Phase ${num}: ${title}" \
+    --label "$labels" --milestone "$ms" --body-file "$tmp" >/dev/null
+  local id; id="$(gh issue list --repo "$REPO" --search "Phase ${num}: ${title}" \
+    --json number --jq '.[0].number' 2>/dev/null || true)"
+  if [[ -n "$id" && -n "$PROJECT_KEY" ]]; then
+    local pnum; pnum="$(project_num "$PROJECT_KEY")"; [[ -z "$pnum" ]] && pnum="$PROJECT_KEY"
+    gh issue edit "$id" --repo "$REPO" --add-project "$pnum" >/dev/null 2>&1 || true
+  fi
+  rm -f "$tmp"; echo "✓ Phase $num: $title"
+}
+
+# ---- 26 issues (corps condensés, stables) ----
+mk 0  "Bootstrap & Socle d'Ingénierie" <<'EOF'
+Objectifs: Poetry mono-repo; lint/format/tests + pre-commit; docker-compose (PostgreSQL/Redis/Ollama)
+Livrables: pyproject; Makefile; CI; docker-compose; arbo; logging JSON; tests hello
+Critères: CI verte; docker OK; make install/test/lint OK; logs JSON; pre-commit actif
+EOF
+mk 1  "Ingestion du Plan Détaillé & Schémas" <<'EOF'
+Objectifs: format YAML/JSON; JSON Schema strict; PlanValidatorAgent
+Livrables: schema; exemples valides/invalides; types; agent; doc
+Critères: détecte incomplets; messages clairs; tests; <100ms
+EOF
+mk 2  "Modélisation TaskGraph & Décomposition" <<'EOF'
+Objectifs: DAG déterministe; étapes {generate_code,assemble,validate,test,package,deploy}; hash stable
+Livrables: core/task_graph; agent; export JSON+viz; idempotence
+Critères: même plan=>même hash; export sans cycles
+EOF
+mk 3  "AgentRegistry v1 (Local)" <<'EOF'
+Objectifs: registre mémoire; interface standard; health-check périodique
+Livrables: service; types; 3 agents; HC
+Critères: register/unregister dyn; HC ~30s; I/O validés
+EOF
+mk 4  "EventBus v1 (In-Process)" <<'EOF'
+Objectifs: pub/sub typé; events task.*; handlers async, ordre garanti
+Livrables: bus_inmem; events; pattern-matching; tests
+Critères: wildcards; pas de pertes
+EOF
+mk 5  "ProjectMemoryManager v1 (Baseline)" <<'EOF'
+Objectifs: API mémoire artifacts; stockage disque; ACL logique
+Livrables: service; CRUD; index; tests
+Critères: persistance OK; ACL OK
+EOF
+mk 6  "ExecutionOrchestrator v1" <<'EOF'
+Objectifs: scheduling séquentiel; reprise erreur; hooks events
+Livrables: executor_v1; retry/backoff; tests intégration
+Critères: exécutions reproductibles; journal complet
+EOF
+mk 7  "Agents Cœur v1" <<'EOF'
+Objectifs: génération/validation/assemblage; contrats stables
+Livrables: 3 agents + tests
+Critères: contrats respectés; tests verts
+EOF
+mk 8  "Escalation Chain (Human/AI)" <<'EOF'
+Objectifs: chaîne local→OpenAI→humain; seuils/timeout
+Livrables: service; policies; tests E2E
+Critères: déclenchement correct; traçabilité
+EOF
+mk 9  "Logs/Metrics/Tracing v1" <<'EOF'
+Objectifs: logs JSON; Prometheus; OpenTelemetry
+Livrables: logging; /metrics; traces
+Critères: correlation_id; métriques visibles
+EOF
+mk 10 "EventBus v2 (NATS + WAL + DLQ)" <<'EOF'
+Objectifs: NATS + WAL + DLQ
+Livrables: nats_*; persistence; DLQ; tests fiabilité
+Critères: pas de pertes; rejouable
+EOF
+mk 11 "PostgreSQL (RLS + Chiffrement)" <<'EOF'
+Objectifs: RLS par tenant; chiffrement at-rest
+Livrables: migrations; schéma; intégrations
+Critères: RLS testé; intégration OK
+EOF
+mk 12 "Audit & Mémoire d’Exécution" <<'EOF'
+Objectifs: audit détaillé des exécutions
+Livrables: service audit; journal; export
+Critères: traçabilité complète
+EOF
+mk 13 "Dashboard v1 (React + WS)" <<'EOF'
+Objectifs: React+Vite; WebSocket live
+Livrables: dashboard; vues; WS updates
+Critères: UI fluide; tests de base
+EOF
+mk 14 "AgentRegistry v2 (Hot-Reload, Remote)" <<'EOF'
+Objectifs: hot-reload; remote discovery
+Livrables: impl + tests
+Critères: reload sans downtime
+EOF
+mk 15 "Security/Gateway (Tokenization/PII)" <<'EOF'
+Objectifs: tokenization; PII masking
+Livrables: middlewares; policies; tests
+Critères: aucune PII en clair
+EOF
+mk 16 "Human-in-the-Loop Console" <<'EOF'
+Objectifs: UI approbation/feedback
+Livrables: UI; journal interventions
+Critères: interventions tracées
+EOF
+mk 17 "Solutions Concurrentes & A/B" <<'EOF'
+Objectifs: variantes multiples; sélection pondérée; A/B
+Livrables: resolver; métriques qualité; sandbox
+Critères: ≥2 variantes; coûts maîtrisés
+EOF
+mk 18 "Packaging & Delivery" <<'EOF'
+Objectifs: docker/zip/git; SBOM; K8s
+Livrables: packaging; helm; SBOM
+Critères: image dispo; SBOM complet
+EOF
+mk 19 "CI/CD & Environnements" <<'EOF'
+Objectifs: Build→Test→Scan→Deploy; env dev/stage/prod
+Livrables: workflows; scripts; docs
+Critères: coverage >80%; rollback auto
+EOF
+mk 20 "Multi-tenancy Stricte & RBAC" <<'EOF'
+Objectifs: RBAC; isolation tenant/project; quotas
+Livrables: authz/rbac; middlewares; policies
+Critères: zéro cross-tenant; audit accès
+EOF
+mk 21 "Orchestrator v2 (Parallélisme)" <<'EOF'
+Objectifs: worker pool; backpressure; rate limit
+Livrables: parallel_executor; policies; perf
+Critères: 10x gros DAG; stress 100+
+EOF
+mk 22 "External Agent Plugin" <<'EOF'
+Objectifs: plugins externes; sandbox; iso réseau
+Livrables: plugins.py; policies.yaml; onboarding
+Critères: discovery OK; policies appliquées
+EOF
+mk 23 "CreativeEnhancementAgent" <<'EOF'
+Objectifs: amélioration créative opt-in
+Livrables: agent; policies; traçabilité
+Critères: ≤3 variantes; audit trail
+EOF
+mk 24 "Observabilité Production" <<'EOF'
+Objectifs: Prometheus/Grafana; ELK/OpenSearch; alerting
+Livrables: observability/; dashboards; alert rules
+Critères: SLO/SLI; alertes critiques
+EOF
+mk 25 "SLOs, KPIs & Costing" <<'EOF'
+Objectifs: SLO/KPI; costing; budgets+alertes
+Livrables: kpis.py; costing/tracker.py; rapports
+Critères: coûts tracés; budgets enforce
+EOF
+mk 26 "Durcissement Production & Gouvernance" <<'EOF'
+Objectifs: signature agents; backups/DR; chaos; runbooks
+Livrables: governance.md; signing.py; runbooks; chaos tests
+Critères: agents signés; RTO<1h; game day OK
+EOF
+
+-----8<----- END FILE: ./issues_seed_min.sh -----
+
+-----8<----- FILE: ./orchestrator/__init__.py -----
+
+-----8<----- END FILE: ./orchestrator/__init__.py -----
+
+-----8<----- FILE: ./orchestrator/app.py -----
+from fastapi import FastAPI
+
+app = FastAPI(title="LunaCore Orchestrator", version="0.1.0")
+
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+-----8<----- END FILE: ./orchestrator/app.py -----
+
+-----8<----- FILE: ./phase0_bootstrap.sh -----
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🧰 Creating folders..."
+mkdir -p core orchestrator agents services tests .github/workflows
+
+echo "📝 Writing pyproject.toml..."
+cat > pyproject.toml <<'PYTOML'
+[tool.poetry]
+name = "lunacore"
+version = "0.1.0"
+description = "Orchestrateur multi-agents pour génération automatisée de logiciels"
+authors = ["NeoLunaInc"]
+readme = "README.md"
+packages = [{ include = "core" }, { include = "orchestrator" }, { include = "agents" }, { include = "services" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.0"
+pydantic = {version="^2.8.0", extras=["dotenv"]}
+uvicorn = {version="^0.30.0", extras=["standard"]}
+python-json-logger = "^2.0.7"
+loguru = "^0.7.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+ruff = "^0.5.4"
+pytest = "^8.3.0"
+pytest-cov = "^5.0.0"
+mypy = "^1.11.0"
+pre-commit = "^3.7.1"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E","F","I","UP","B","SIM","W"]
+ignore = []
+fix = true
+exclude = ["venv",".venv",".git"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --maxfail=1 --disable-warnings"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+PYTOML
+
+echo "⚙️ Writing Makefile..."
+cat > Makefile <<'MK'
+.PHONY: install fmt lint test docker-up docker-down
+install:
+	poetry install
+fmt:
+	poetry run black .
+lint:
+	poetry run ruff check .
+test:
+	poetry run pytest
+docker-up:
+	docker compose up -d
+docker-down:
+	docker compose down -v
+MK
+
+echo "🔧 pre-commit config..."
+cat > .pre-commit-config.yaml <<'YML'
+repos:
+- repo: https://github.com/psf/black
+  rev: 24.4.2
+  hooks: [ { id: black } ]
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.5.4
+  hooks: [ { id: ruff, args: ["--fix"] } ]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.6.0
+  hooks:
+    - id: check-merge-conflict
+    - id: end-of-file-fixer
+YML
+
+echo "🧪 smoke test + logging..."
+mkdir -p core
+cat > core/logging.py <<'PY'
+import json, logging, sys
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {"level": record.levelname, "logger": record.name, "msg": record.getMessage()}
+        if record.exc_info:
+            payload["exc_info"] = self.formatException(record.exc_info)
+        return json.dumps(payload, ensure_ascii=False)
+_handler = logging.StreamHandler(sys.stdout)
+_handler.setFormatter(JsonFormatter())
+logging.basicConfig(handlers=[_handler], level=logging.INFO, force=True)
+PY
+
+cat > tests/test_smoke.py <<'PY'
+def test_math_works():
+    assert 1 + 1 == 2
+PY
+
+echo "🐳 docker-compose (PostgreSQL, Redis, Ollama)..."
+cat > docker-compose.yml <<'YML'
+version: "3.9"
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: lunacore
+    ports: ["5432:5432"]
+    volumes: [ "db_data:/var/lib/postgresql/data" ]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes: [ "ollama_data:/root/.ollama" ]
+volumes:
+  db_data: {}
+  ollama_data: {}
+YML
+
+echo "🤖 GitHub Actions CI..."
+mkdir -p .github/workflows
+cat > .github/workflows/ci.yml <<'YML'
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install deps
+        run: poetry install
+      - name: Lint
+        run: poetry run ruff check . && poetry run black --check .
+      - name: Tests
+        run: poetry run pytest -q --maxfail=1 --disable-warnings
+YML
+
+echo "📦 init packages..."
+touch core/__init__.py orchestrator/__init__.py agents/__init__.py services/__init__.py
+
+echo "✅ Done."
+
+-----8<----- END FILE: ./phase0_bootstrap.sh -----
+
+-----8<----- FILE: ./poetry.lock -----
 # This file is automatically @generated by Poetry 2.1.4 and should not be changed by hand.
 
 [[package]]
@@ -1292,5 +2510,87 @@ dev = ["black (>=19.3b0) ; python_version >= \"3.6\"", "pytest (>=4.6.2)"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = "^3.12"
-content-hash = "bcf587f73673830c810507612cbfb5b4723097e560ff792ca718e47bfed8bf6e"
+python-versions = "^3.11"
+content-hash = "a54d58fbd51a4b8a4a0b7ecd85e04b234aa7a56bf4ed3b37aab83b22912d2b66"
+
+-----8<----- END FILE: ./poetry.lock -----
+
+-----8<----- FILE: ./pyproject.toml -----
+[tool.poetry]
+name = "lunacore"
+version = "0.1.0"
+description = "Orchestrateur multi-agents pour génération automatisée de logiciels"
+authors = ["NeoLunaInc"]
+readme = "README.md"
+packages = [{ include = "core" }, { include = "orchestrator" }, { include = "agents" }, { include = "services" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.0"
+pydantic = {version="^2.8.0", extras=["dotenv"]}
+uvicorn = {version="^0.30.0", extras=["standard"]}
+python-json-logger = "^2.0.7"
+loguru = "^0.7.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+ruff = "^0.5.4"
+pytest = "^8.3.0"
+pytest-cov = "^5.0.0"
+mypy = "^1.11.0"
+pre-commit = "^3.7.1"
+httpx = "^0.28.1"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E","F","I","UP","B","SIM","W"]
+ignore = []
+fix = true
+exclude = ["venv",".venv",".git"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --maxfail=1 --disable-warnings"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+-----8<----- END FILE: ./pyproject.toml -----
+
+-----8<----- FILE: ./services/__init__.py -----
+
+-----8<----- END FILE: ./services/__init__.py -----
+
+-----8<----- FILE: ./tests/test_healthz.py -----
+from fastapi.testclient import TestClient
+
+from orchestrator.app import app
+
+client = TestClient(app)
+
+
+def test_healthz_ok():
+    r = client.get("/healthz")
+    assert r.status_code == 200
+    assert r.json() == {"status": "ok"}
+
+-----8<----- END FILE: ./tests/test_healthz.py -----
+
+-----8<----- FILE: ./tests/test_smoke.py -----
+def test_math_works():
+    assert 1 + 1 == 2
+
+-----8<----- END FILE: ./tests/test_smoke.py -----
