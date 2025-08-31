@@ -2,36 +2,57 @@
 
 Socle d’orchestration d’agents (Python 3.12 / FastAPI) avec outillage dev (Poetry, pre-commit, black/ruff, pytest).
 
+## Sommaire
+
+- [Démarrage rapide](#démarrage-rapide)
+- [Qualité & tests](#qualité--tests)
+- [Services de base](#services-de-base)
+- [API](#api)
+- [Variables d’environnement](#variables-denvironnement)
+
 ## Démarrage rapide
 
 ```bash
 # Dépendances Python
 poetry install
 poetry run pre-commit install
+```
 
-# Qualité & tests
+## Qualité & tests
+
+```bash
 make fmt && make lint && make test
+```
 
-# Services de base
+## Services de base
+
+```bash
 docker compose up -d db redis
+```
 
-# API (dev)
+## API
+
+```bash
 make run-api   # puis GET http://localhost:8000/healthz
-Variables d’environnement
-OLLAMA_BASE_URL : par défaut http://localhost:11434 (Ollama installé sur l’hôte).
-Pour vérifier : curl -s http://localhost:11434/api/tags.
+```
 
-Structure (extrait)
-graphql
-Copier le code
-orchestrator/
-  app.py            # FastAPI + /healthz
-core/
-  logging.py        # config logs JSON à l’import
-tests/
-  test_healthz.py   # test d’intégration httpx
-Makefile            # run-api, fmt, lint, test
-Board & workflows (résumé)
+## Variables d’environnement
+
+- OLLAMA_BASE_URL (défaut http://localhost:11434)
+- Commande de vérif: `curl -s http://localhost:11434/api/tags`
+
+## Structure (extrait)
+
+- orchestrator/
+  - app.py            # FastAPI + /healthz
+- core/
+  - logging.py        # config logs JSON à l’import
+- tests/
+  - test_healthz.py   # test d’intégration httpx
+- Makefile            # run-api, fmt, lint, test
+
+## Board & workflows (résumé)
+
 Statuts : Backlog, Sprint actuel, En développement, Review/Test, Terminé.
 
 Item added to project (Issues) → Status=Backlog.
