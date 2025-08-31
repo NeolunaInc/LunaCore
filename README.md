@@ -1,6 +1,6 @@
 # LunaCore
 
-Socle d’orchestration d’agents (Python 3.12 / FastAPI) avec outillage dev (Poetry, pre-commit, black/ruff, pytest).
+Socle d’orchestration d’agents (Python 3.12 uniquement / FastAPI) avec outillage dev (Poetry, pre-commit, black/ruff, pytest).
 
 ## Sommaire
 

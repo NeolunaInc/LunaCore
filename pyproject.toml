@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{ include = "core" }, { include = "orchestrator" }, { include = "agents" }, { include = "services" }]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+python = "^3.12"
 fastapi = "^0.115.0"
 pydantic = {version="^2.8.0", extras=["dotenv"]}
 uvicorn = {version="^0.30.0", extras=["standard"]}
@@ -25,11 +25,11 @@ httpx = "^0.28.1"
 
 [tool.black]
 line-length = 100
-target-version = ["py311","py312"]
+target-version = ["py312"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 select = ["E","F","I","UP","B","SIM","W"]
 ignore = []
 fix = true
@@ -40,7 +40,7 @@ testpaths = ["tests"]
 addopts = "-q --maxfail=1 --disable-warnings"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true
