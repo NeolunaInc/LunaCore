@@ -41,5 +41,9 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install deps
         run: poetry install --with dev --no-interaction --no-ansi
+      - name: Install Poetry (tests)
+        run: pipx install poetry || python -m pip install poetry
+      - name: Install dependencies (poetry)
+        run: poetry install -n
       - name: Run tests (Phase 2 + 3)
         run: poetry run pytest -q
