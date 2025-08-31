@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Optional, Tuple, List
+
 from core.agent_types import AgentProtocol, AgentSpec
+
 
 class EchoAgent(AgentProtocol):
     def __init__(self) -> None:
@@ -11,7 +12,7 @@ class EchoAgent(AgentProtocol):
             capabilities=["echo"],
         )
 
-    def health(self) -> Tuple[bool, Optional[str]]:
+    def health(self) -> tuple[bool, str | None]:
         return True, "ok"
 
     # exemple d'API étendue

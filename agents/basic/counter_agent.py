@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Optional, Tuple
+
 from core.agent_types import AgentProtocol, AgentSpec
+
 
 class CounterAgent(AgentProtocol):
     def __init__(self) -> None:
@@ -11,6 +12,6 @@ class CounterAgent(AgentProtocol):
             capabilities=["count"],
         )
 
-    def health(self) -> Tuple[bool, Optional[str]]:
+    def health(self) -> tuple[bool, str | None]:
         self._count += 1
         return True, f"count={self._count}"
