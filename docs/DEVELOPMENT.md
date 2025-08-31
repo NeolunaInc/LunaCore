@@ -18,7 +18,15 @@ make run-api
 Qualité & tests
 bash
 Copier le code
-make fmt && make lint && make test
+# Optional Poetry setup
+poetry install  # or use .venv with pip
+# Run pre-commit lint locally
+pre-commit run -a
+# Regenerate agent schema
+python scripts/gen_agent_schema.py
+# Run tests for Phase 2+3
+PYTHONPATH="$(pwd)" pytest -q tests/test_task_graph.py tests/test_task_decomposer.py tests/test_agent_registry.py tests/test_agent_schema.py
+# Note: CI sets PYTHONPATH automatically
 Services de base
 bash
 Copier le code
