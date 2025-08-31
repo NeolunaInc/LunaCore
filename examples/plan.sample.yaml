@@ -1,0 +1,17 @@
+id: plan-hello-world
+name: HelloWorld
+components:
+  api:
+    language: python
+    framework: fastapi
+  worker:
+    language: python
+    framework: none
+stages:
+  generate_code: true
+  assemble: true
+  validate: true
+  test: true
+  package: true
+  deploy: false
+component_order: ["api", "worker"]
