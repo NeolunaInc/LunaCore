@@ -11,6 +11,7 @@ class CounterAgent(AgentProtocol):
             version="0.1.0",
             capabilities=["count"],
         )
+        self._count = 0
 
     def health(self) -> tuple[bool, str | None]:
         self._count += 1
