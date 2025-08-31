@@ -1,6 +1,10 @@
 from __future__ import annotations
-import json, pathlib
-from core.agent_types import AgentSpec, AgentStatus, AgentRecord
+
+import json
+import pathlib
+
+from core.agent_types import AgentRecord, AgentSpec, AgentStatus
+
 
 def main() -> None:
     out = {
@@ -11,6 +15,7 @@ def main() -> None:
     p = pathlib.Path("schemas/agent_registry.schema.json")
     p.write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(f"wrote {p}")
+
 
 if __name__ == "__main__":
     main()

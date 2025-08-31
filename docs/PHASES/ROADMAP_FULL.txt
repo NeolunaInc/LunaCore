@@ -1,0 +1,922 @@
+LunaCore – Roadmap complète (Phases 0→26)
+Source: issues GitHub consolidées
+Dernière mise à jour: (à compléter)
+Commit de référence: (à compléter)
+Statut synthèse: P0–P2 ✅ · P3 🔄 · reste ⏳
+---
+
+# LunaCore - 26 Issues GitHub Complètes
+
+## Issue #1
+```markdown
+Title: Phase 0: Bootstrap & Socle d'Ingénierie
+
+Description: Mise en place de l'infrastructure de base du projet LunaCore. Cette phase établit les fondations techniques nécessaires pour tout le développement futur.
+
+## Durée: 2-3 jours
+## Priorité: CRITIQUE
+## Labels: phase:foundation, priority:critical, type:infrastructure
+## Prérequis: Aucun
+
+### Objectifs
+- Initialiser mono-repo Python avec Poetry pour gestion des dépendances
+- Configurer outillage qualité (lint, format, tests, pre-commit hooks)
+- Mettre en place Docker-compose pour services de développement
+- Établir structure de base du projet
+
+### Livrables
+- [ ] pyproject.toml avec toutes les dépendances core
+- [ ] Makefile avec targets standards (install, test, lint, docker-up/down)
+- [ ] .github/workflows/ci.yml pour CI/CD automatisé
+- [ ] docker-compose.yml avec PostgreSQL, Redis, Ollama
+- [ ] Structure de packages Python (core/, orchestrator/, agents/, services/)
+- [ ] Configuration de logging JSON structuré
+- [ ] .env.example avec variables d'environnement
+- [ ] Tests "hello world" pour valider l'installation
+
+### Critères d'Acceptation
+- [ ] Pipeline CI/CD est vert sur GitHub Actions
+- [ ] Docker-compose démarre tous les services sans erreur
+- [ ] Commands make install/test/lint fonctionnent
+- [ ] Logs apparaissent en format JSON structuré
+- [ ] Pre-commit hooks installés et fonctionnels
+- [ ] Documentation README de base
+```
+
+## Issue #2
+```markdown
+Title: Phase 1: Ingestion du Plan Détaillé & Schémas
+
+Description: Développement du système de validation des plans d'entrée. Cette phase garantit que LunaCore ne traite que des plans complets et valides.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:foundation, priority:high, type:feature
+## Prérequis: Phase 0 complétée
+
+### Objectifs
+- Définir format d'entrée des plans (YAML/JSON)
+- Créer JSON Schema pour validation stricte
+- Implémenter PlanValidatorAgent qui valide complétude/cohérence
+- Créer bibliothèque d'exemples
+
+### Livrables
+- [ ] schemas/plan.schema.json avec spécifications complètes
+- [ ] 10+ exemples de plans dans examples/plans/
+- [ ] core/plan_types.py avec classes Pydantic (ProjectPlan, ModuleSpec, Constraints)
+- [ ] agents/plan_validator/ avec logique de validation
+- [ ] Documentation du format de plan
+- [ ] Tests unitaires de validation
+
+### Critères d'Acceptation
+- [ ] Validation détecte 100% des plans incomplets
+- [ ] Messages d'erreur explicites et actionnables
+- [ ] Tests couvrent tous les cas limites
+- [ ] Performance < 100ms pour validation
+- [ ] 5 plans valides et 5 invalides comme exemples
+```
+
+## Issue #3
+```markdown
+Title: Phase 2: Modélisation TaskGraph & Décomposition
+
+Description: Transformation des plans en graphes de tâches exécutables (DAG). Cœur de la logique d'orchestration.
+
+## Durée: 4 jours
+## Priorité: HAUTE
+## Labels: phase:foundation, priority:high, type:feature
+## Prérequis: Phase 1 complétée
+
+### Objectifs
+- Créer TaskDecomposerAgent pour transformer plans en DAG
+- Modéliser les dépendances entre tâches
+- Générer des DAG déterministes (même plan = même graphe)
+- Implémenter visualisation du graphe
+
+### Livrables
+- [ ] core/task_graph.py avec modèle de données (Task, Dependency, Edge)
+- [ ] agents/task_decomposer/ avec heuristiques par type de projet
+- [ ] Visualisation du DAG (export JSON + rendu graphique)
+- [ ] Hash stable pour garantir idempotence
+- [ ] Algorithme de détection de cycles
+- [ ] Tests de décomposition
+
+### Critères d'Acceptation
+- [ ] Même plan génère toujours même DAG (hash identique)
+- [ ] DAG pour CRUD REST = 30-50 tâches
+- [ ] Pas de cycles détectés dans les graphes
+- [ ] Export JSON valide et importable
+- [ ] Visualisation claire des dépendances
+```
+
+## Issue #4
+```markdown
+Title: Phase 3: AgentRegistry v1 (Local)
+
+Description: Système de gestion des agents IA. Permet l'enregistrement, la découverte et le health-check des agents.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:foundation, priority:high, type:feature
+## Prérequis: Phase 2 complétée
+
+### Objectifs
+- Créer registre d'agents en mémoire
+- Définir interface standard des agents
+- Implémenter health-check automatique
+- Créer premiers agents fonctionnels
+
+### Livrables
+- [ ] services/agent_registry/ avec API (register, list, get, health)
+- [ ] core/agent_types.py avec spécifications (AgentSpecification, AgentRecord)
+- [ ] 3 agents de base fonctionnels (CodeGenerator, Validator, Assembly)
+- [ ] Système de health-check périodique
+- [ ] Métadonnées agents (version, capacités, endpoint)
+- [ ] Documentation API agents
+
+### Critères d'Acceptation
+- [ ] Register/unregister dynamique fonctionnel
+- [ ] Health check toutes les 30 secondes
+- [ ] Schemas input/output validés pour chaque agent
+- [ ] Tests d'intégration complets
+- [ ] API REST documentée
+```
+
+## Issue #5
+```markdown
+Title: Phase 4: EventBus v1 (In-Process)
+
+Description: Système de communication événementielle entre composants. Base pour l'orchestration asynchrone.
+
+## Durée: 2 jours
+## Priorité: HAUTE
+## Labels: phase:foundation, priority:high, type:feature
+## Prérequis: Phase 3 complétée
+
+### Objectifs
+- Implémenter pub/sub in-process typé
+- Créer types d'événements standards
+- Supporter pattern matching sur événements
+- Garantir ordre de livraison
+
+### Livrables
+- [ ] services/event_bus/bus_inmem.py avec pub/sub
+- [ ] core/events.py avec types d'événements (task.*, escalation.*, etc.)
+- [ ] Pattern matching avec wildcards
+- [ ] Queue management et buffering
+- [ ] Tests de concurrence
+- [ ] Documentation patterns événements
+
+### Critères d'Acceptation
+- [ ] Subscribe avec wildcards (task.*) fonctionne
+- [ ] Émission asynchrone sans blocage
+- [ ] Ordre de livraison FIFO garanti
+- [ ] Pas de perte d'événements sous charge
+- [ ] Performance > 10000 events/sec
+```
+
+## Issue #6
+```markdown
+Title: Phase 5: ProjectMemoryManager v1 (Baseline)
+
+Description: Système de mémoire projet pour stocker artifacts et historique. Prépare la base pour multi-tenancy.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:foundation, priority:high, type:feature
+## Prérequis: Phase 4 complétée
+
+### Objectifs
+- Créer API mémoire projet unifiée
+- Implémenter stockage local et en mémoire
+- Préparer ACL pour multi-tenancy future
+- Gérer versioning basique des artifacts
+
+### Livrables
+- [ ] services/memory/interface.py avec API abstraite
+- [ ] services/memory/mem_inmem.py pour dev/tests
+- [ ] services/memory/file_store.py pour persistance locale
+- [ ] core/artifacts.py avec types d'artifacts
+- [ ] ACL stub pour tenant/project isolation
+- [ ] Tests de persistance et récupération
+
+### Critères d'Acceptation
+- [ ] Store/retrieve artifacts par ID fonctionne
+- [ ] Versioning basique des artifacts
+- [ ] ACL préparé (non enforced)
+- [ ] Tests de persistance après restart
+- [ ] Performance lecture < 50ms
+```
+
+## Issue #7
+```markdown
+Title: Phase 6: ExecutionOrchestrator v1 (Séquentiel)
+
+Description: Moteur d'orchestration principal. Coordonne l'exécution complète d'un plan du début à la fin.
+
+## Durée: 5 jours
+## Priorité: CRITIQUE
+## Labels: phase:foundation, priority:critical, type:feature
+## Prérequis: Phase 5 complétée
+
+### Objectifs
+- Implémenter execute_plan() end-to-end
+- Orchestrer validation → DAG → allocation → exécution
+- Collecter artifacts et émettre événements
+- Créer interface CLI minimale
+
+### Livrables
+- [ ] orchestrator/execution_orchestrator.py avec logique principale
+- [ ] agents/resource_allocator/ pour affectation tâches
+- [ ] Interface CLI basique (submit, status, logs)
+- [ ] WebSocket endpoint minimal pour monitoring
+- [ ] Gestion d'erreurs et retry basique
+- [ ] Tests d'exécution complète
+
+### Critères d'Acceptation
+- [ ] Plan complet s'exécute de bout en bout
+- [ ] Événements émis correctement à chaque étape
+- [ ] Artifacts collectés et stockés
+- [ ] CLI commands fonctionnelles
+- [ ] Logs corrélés par execution_id
+- [ ] Test sur plan CRUD simple réussit
+```
+
+## Issue #8
+```markdown
+Title: Phase 7: Agents Cœur v1
+
+Description: Implémentation des agents essentiels pour génération de code. Base de la capacité de production.
+
+## Durée: 5 jours
+## Priorité: CRITIQUE
+## Labels: phase:foundation, priority:critical, type:feature
+## Prérequis: Phase 6 complétée
+
+### Objectifs
+- Implémenter CodeGeneratorAgent avec Ollama
+- Créer ValidationAgent pour syntax et tests
+- Développer AssemblyAgent pour packaging
+- Intégrer timeouts et retry logic
+
+### Livrables
+- [ ] agents/code_generator/ avec intégration Ollama/llama3:8b
+- [ ] agents/validation/ avec checks (ruff, pytest, imports)
+- [ ] agents/assembly/ pour structure projet et packaging
+- [ ] Prompts optimisés par type de tâche
+- [ ] Timeouts configurables (défaut 60s)
+- [ ] Tests unitaires et d'intégration
+
+### Critères d'Acceptation
+- [ ] Génère code Python syntaxiquement valide
+- [ ] Validation détecte 95% des erreurs syntax
+- [ ] Assembly crée structure projet standard
+- [ ] Timeout déclenche après délai configuré
+- [ ] Retry automatique jusqu'à 3 fois
+- [ ] Tests de génération CRUD passent
+```
+
+## Issue #9
+```markdown
+Title: Phase 8: EscalationManager v1
+
+Description: Système d'escalade intelligent vers IA plus puissantes ou intervention humaine.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:foundation, priority:high, type:feature
+## Prérequis: Phase 7 complétée
+
+### Objectifs
+- Implémenter chaîne d'escalade configurable
+- Gérer budget et coûts OpenAI
+- Logger raisons d'escalade
+- Préparer intervention humaine
+
+### Livrables
+- [ ] orchestrator/escalation_manager.py avec logique d'escalade
+- [ ] Policies par type de tâche (local → GPT-3.5 → GPT-4 → humain)
+- [ ] Budget tracking et alertes
+- [ ] Backoff exponentiel entre tentatives
+- [ ] Logs détaillés des raisons d'échec
+- [ ] Placeholder pour human-in-the-loop
+
+### Critères d'Acceptation
+- [ ] Escalade après 3 échecs consécutifs
+- [ ] Respect strict du budget configuré
+- [ ] Logs tracent chaque décision d'escalade
+- [ ] Backoff 1s, 2s, 4s entre retries
+- [ ] Interface pour future intervention humaine
+```
+
+## Issue #10
+```markdown
+Title: Phase 9: Logs/Metrics/Tracing v1
+
+Description: Infrastructure d'observabilité. CRITIQUE pour debug et monitoring en production.
+
+## Durée: 3 jours
+## Priorité: CRITIQUE
+## Labels: phase:critical-infra, priority:critical, type:infrastructure
+## Prérequis: Phase 8 complétée
+
+### Objectifs
+- Intégrer OpenTelemetry pour traces distribuées
+- Implémenter logs JSON structurés avec correlation_id
+- Exposer métriques Prometheus
+- Corréler tous les événements d'une exécution
+
+### Livrables
+- [ ] core/telemetry.py avec setup OpenTelemetry
+- [ ] Middlewares pour orchestrator/agents/bus
+- [ ] Export traces vers console/fichiers
+- [ ] Correlation ID propagé dans tout le système
+- [ ] Endpoint /metrics pour Prometheus
+- [ ] Documentation des métriques
+
+### Critères d'Acceptation
+- [ ] Chaque requête a un correlation_id unique
+- [ ] Traces montrent le flow complet d'exécution
+- [ ] Métriques exposées sur /metrics
+- [ ] Logs structurés avec contexte complet
+- [ ] Performance overhead < 5%
+```
+
+## Issue #11
+```markdown
+Title: Phase 10: EventBus v2 (Résilient)
+
+Description: Migration vers bus d'événements durable avec garantie de livraison. CRITIQUE pour fiabilité.
+
+## Durée: 4 jours
+## Priorité: CRITIQUE
+## Labels: phase:critical-infra, priority:critical, type:infrastructure
+## Prérequis: Phase 9 complétée
+
+### Objectifs
+- Migrer vers NATS/RabbitMQ pour durabilité
+- Implémenter WAL pour zéro perte
+- Créer Dead Letter Queue pour échecs
+- Ajouter rate limiting et déduplication
+
+### Livrables
+- [ ] services/event_bus/bus_nats.py avec driver NATS
+- [ ] services/event_bus/wal.py pour Write-Ahead Log
+- [ ] services/event_bus/dlq.py pour Dead Letter Queue
+- [ ] services/event_bus/rate_limit.py pour contrôle flux
+- [ ] Migration script depuis v1
+- [ ] Tests de crash recovery
+
+### Critères d'Acceptation
+- [ ] ZÉRO perte d'événements sur crash
+- [ ] WAL persiste sur disque avant ACK
+- [ ] DLQ après 3 tentatives échouées
+- [ ] Reprise automatique après redémarrage
+- [ ] Déduplication par event_id
+- [ ] Performance > 5000 events/sec
+```
+
+## Issue #12
+```markdown
+Title: Phase 11: ProjectMemory v2 (PostgreSQL + Sécurité)
+
+Description: Migration vers PostgreSQL avec sécurité renforcée. CRITIQUE pour production multi-tenant.
+
+## Durée: 4 jours
+## Priorité: CRITIQUE
+## Labels: phase:critical-infra, priority:critical, type:infrastructure
+## Prérequis: Phase 10 complétée
+
+### Objectifs
+- Migrer vers PostgreSQL pour persistance
+- Implémenter Row-Level Security (RLS)
+- Ajouter chiffrement at-rest
+- Créer schemas isolés par tenant
+
+### Livrables
+- [ ] services/memory/postgres_store.py avec driver asyncpg
+- [ ] Migrations Alembic pour schemas
+- [ ] RLS policies pour isolation tenant
+- [ ] services/security/kms_stub.py pour clés chiffrement
+- [ ] Backup/restore procedures
+- [ ] Tests d'étanchéité multi-tenant
+
+### Critères d'Acceptation
+- [ ] Tests prouvent isolation inter-tenant
+- [ ] Données chiffrées au repos (AES-256)
+- [ ] Backup/restore < 5 minutes
+- [ ] Performance lectures < 100ms
+- [ ] Migrations réversibles
+- [ ] Audit trail des accès
+```
+
+## Issue #13
+```markdown
+Title: Phase 12: Audit/Trace/Data Lineage
+
+Description: Système d'audit immutable et traçabilité complète. CRITIQUE pour conformité et debug.
+
+## Durée: 3 jours
+## Priorité: CRITIQUE
+## Labels: phase:critical-infra, priority:critical, type:feature
+## Prérequis: Phase 11 complétée
+
+### Objectifs
+- Créer audit trail complet et immutable
+- Tracer lineage artifact → agent → décisions
+- Signer traces avec HMAC
+- Implémenter recherche et export
+
+### Livrables
+- [ ] services/audit/logger.py pour capture événements
+- [ ] services/audit/storage.py avec table append-only
+- [ ] services/audit/search.py pour requêtes
+- [ ] Signature HMAC de chaque entrée
+- [ ] Export CSV/JSON pour conformité
+- [ ] Dashboard audit dans UI
+
+### Critères d'Acceptation
+- [ ] TOUTE action est tracée automatiquement
+- [ ] Traces signées et vérifiables (HMAC)
+- [ ] Recherche par correlation_id < 100ms
+- [ ] Export complet pour audit externe
+- [ ] Impossible de modifier/supprimer traces
+- [ ] Lineage complet visualisable
+```
+
+## Issue #14
+```markdown
+Title: Phase 13: Dashboard Temps Réel
+
+Description: Interface web de monitoring et contrôle. Visibilité complète sur le système.
+
+## Durée: 5 jours
+## Priorité: HAUTE
+## Labels: phase:interface, priority:high, type:feature
+## Prérequis: Phase 12 complétée
+
+### Objectifs
+- Créer dashboard React avec WebSocket
+- Visualiser pipeline DAG en temps réel
+- Implémenter console d'erreurs interactive
+- Ajouter chat d'intervention par tâche
+
+### Livrables
+- [ ] dashboard/ avec React + Vite + TailwindCSS
+- [ ] services/monitoring/ws_server.py pour streaming
+- [ ] Components: PipelineView, EventStream, ErrorConsole, InterventionChat
+- [ ] API REST pour données dashboard
+- [ ] Graphiques de métriques temps réel
+- [ ] Export de rapports
+
+### Critères d'Acceptation
+- [ ] DAG s'actualise en temps réel (< 100ms)
+- [ ] Erreurs cliquables avec contexte complet
+- [ ] Chat fonctionnel pour intervention
+- [ ] Performance fluide avec 100+ tâches
+- [ ] Responsive design mobile/desktop
+- [ ] Dark mode disponible
+```
+
+## Issue #15
+```markdown
+Title: Phase 14: AgentRegistry v2 (Hot-reload & Versioning)
+
+Description: Évolution du registry pour permettre updates sans downtime et gestion des versions.
+
+## Durée: 3 jours
+## Priorité: MOYENNE
+## Labels: phase:interface, priority:medium, type:feature
+## Prérequis: Phase 13 complétée
+
+### Objectifs
+- Permettre hot-reload des agents
+- Implémenter versioning sémantique
+- Créer sandbox pour tests pré-activation
+- Générer documentation automatique
+
+### Livrables
+- [ ] services/agent_registry/api.py avec endpoints REST
+- [ ] services/sandbox/runner.py pour tests isolés
+- [ ] Versioning format name-vX.Y.Z
+- [ ] Auto-génération OpenAPI docs
+- [ ] Rollback automatique si régression
+- [ ] Métriques par version d'agent
+
+### Critères d'Acceptation
+- [ ] Register/update sans restart système
+- [ ] Sandbox score minimum 80% requis
+- [ ] Rollback < 30 secondes si problème
+- [ ] API complètement documentée
+- [ ] Tests de non-régression automatiques
+```
+
+## Issue #16
+```markdown
+Title: Phase 15: SecurityManager (PII/Tokenization)
+
+Description: Protection des données sensibles avant envoi vers IA cloud. CRITIQUE pour conformité RGPD.
+
+## Durée: 3 jours
+## Priorité: CRITIQUE
+## Labels: phase:interface, priority:critical, type:security
+## Prérequis: Phase 14 complétée
+
+### Objectifs
+- Scanner et détecter PII automatiquement
+- Tokenizer avant envoi vers OpenAI
+- Maintenir map de restauration locale
+- Stratégies différenciées par destination
+
+### Livrables
+- [ ] services/security/security_manager.py orchestrateur sécurité
+- [ ] services/security/pii_scanner.py avec patterns (email, phone, SSN, CC)
+- [ ] services/security/tokenizer.py pour remplacement réversible
+- [ ] Cache sécurisé des mappings token→valeur
+- [ ] Tests exhaustifs de non-régression
+- [ ] Documentation conformité
+
+### Critères d'Acceptation
+- [ ] Détection 99% des PII standards
+- [ ] Tokenization < 10ms par requête
+- [ ] Restauration 100% exacte après réponse
+- [ ] ZÉRO fuite dans logs de tests
+- [ ] Conformité RGPD validée
+- [ ] Audit trail de toute tokenization
+```
+
+## Issue #17
+```markdown
+Title: Phase 16: Human Intervention Flow
+
+Description: Système d'intervention humaine dans le pipeline. Permet correction et guidance en temps réel.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:interface, priority:high, type:feature
+## Prérequis: Phase 15 complétée
+
+### Objectifs
+- Préparer contexte complet pour humain
+- Notifier via multiple canaux
+- Permettre actions correctives
+- Tracer toutes les décisions
+
+### Livrables
+- [ ] services/human_loop/handler.py pour orchestration
+- [ ] Intégration Slack/Email/Dashboard
+- [ ] UI modale pour intervention
+- [ ] Actions: fix/skip/abort/escalate
+- [ ] Timeout configurable
+- [ ] Historique des interventions
+
+### Critères d'Acceptation
+- [ ] Notification < 5 secondes après trigger
+- [ ] Contexte inclut logs, code, erreurs
+- [ ] Actions appliquées immédiatement
+- [ ] Toutes décisions tracées en audit
+- [ ] Timeout avec action par défaut
+- [ ] UI intuitive sans formation
+```
+
+## Issue #18
+```markdown
+Title: Phase 17: Solutions Concurrentes & A/B Testing
+
+Description: Génération et comparaison de multiples solutions pour optimisation qualité.
+
+## Durée: 4 jours
+## Priorité: MOYENNE
+## Labels: phase:advanced, priority:medium, type:feature
+## Prérequis: Phase 16 complétée
+
+### Objectifs
+- Générer 2-3 variantes par tâche
+- Implémenter scoring multi-critères
+- A/B testing automatique
+- Sélection de la meilleure solution
+
+### Livrables
+- [ ] orchestrator/solution_resolver.py avec algorithmes sélection
+- [ ] Métriques: qualité, performance, coût, maintenabilité
+- [ ] Sandbox pour exécution parallèle
+- [ ] Comparateur de solutions
+- [ ] Rapports de décision
+- [ ] Configuration des poids
+
+### Critères d'Acceptation
+- [ ] Génère minimum 2 variantes viables
+- [ ] Scoring reproductible et traçable
+- [ ] Tests automatiques sur chaque variante
+- [ ] Sélection justifiée par métriques
+- [ ] Coûts maîtrisés (< 2x budget normal)
+- [ ] Possibilité override manuel
+```
+
+## Issue #19
+```markdown
+Title: Phase 18: Packaging & Delivery
+
+Description: Système de packaging et livraison des projets générés. Produit les livrables finaux.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:advanced, priority:high, type:feature
+## Prérequis: Phase 17 complétée
+
+### Objectifs
+- Packager en différents formats
+- Générer SBOM automatique
+- Créer manifests déploiement
+- Préparer artifacts téléchargeables
+
+### Livrables
+- [ ] agents/packaging/ pour création packages
+- [ ] agents/deployment/ pour préparation déploiement
+- [ ] Support: Docker, ZIP, Git, K8s
+- [ ] SBOM generation (CycloneDX/SPDX)
+- [ ] Templates Helm charts
+- [ ] Documentation déploiement
+
+### Critères d'Acceptation
+- [ ] Docker image builds et démarre
+- [ ] SBOM complet et valide
+- [ ] ZIP contient tout le nécessaire
+- [ ] Manifests K8s applicables
+- [ ] Tests de déploiement passent
+- [ ] Documentation claire incluse
+```
+
+## Issue #20
+```markdown
+Title: Phase 19: CI/CD & Environnements
+
+Description: Pipelines complets et gestion multi-environnements. Infrastructure as Code.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:advanced, priority:high, type:infrastructure
+## Prérequis: Phase 18 complétée
+
+### Objectifs
+- Créer pipelines GitHub Actions complets
+- Gérer dev/staging/prod
+- Implémenter quality gates
+- Automatiser déploiements
+
+### Livrables
+- [ ] .github/workflows/ pipelines étendus
+- [ ] scripts/ci/ helpers et tools
+- [ ] Environment-specific configs
+- [ ] Secret management
+- [ ] Rollback procedures
+- [ ] docs/ci-cd.md
+
+### Critères d'Acceptation
+- [ ] Build → Test → Scan → Deploy automatique
+- [ ] Coverage > 80% obligatoire
+- [ ] Security scan bloquant si critique
+- [ ] Rollback < 5 minutes
+- [ ] Environnements isolés
+- [ ] Notifications sur échec
+```
+
+## Issue #21
+```markdown
+Title: Phase 20: Multi-tenancy Stricte & RBAC
+
+Description: Isolation complète multi-tenant avec contrôle d'accès. CRITIQUE pour usage entreprise.
+
+## Durée: 4 jours
+## Priorité: CRITIQUE
+## Labels: phase:advanced, priority:critical, type:security
+## Prérequis: Phase 19 complétée
+
+### Objectifs
+- Implémenter RBAC complet
+- Garantir isolation totale tenant/project
+- Enforcer quotas et limites
+- Auditer tous les accès
+
+### Livrables
+- [ ] services/authz/rbac.py avec roles (admin/operator/viewer)
+- [ ] Middlewares enforcement partout
+- [ ] Policies sur EventBus et Memory
+- [ ] Quotas CPU/memory/storage
+- [ ] Tests d'étanchéité exhaustifs
+- [ ] Dashboard permissions
+
+### Critères d'Acceptation
+- [ ] ZÉRO accès cross-tenant possible
+- [ ] Permissions respectées à 100%
+- [ ] Quotas enforced avec alertes
+- [ ] Audit complet des accès
+- [ ] Tests penetration réussis
+- [ ] UI adapte selon permissions
+```
+
+## Issue #22
+```markdown
+Title: Phase 21: Orchestrator v2 (Parallélisme)
+
+Description: Refactoring pour exécution parallèle massive. Amélioration 10x des performances.
+
+## Durée: 5 jours
+## Priorité: HAUTE
+## Labels: phase:advanced, priority:high, type:feature
+## Prérequis: Phase 20 complétée
+
+### Objectifs
+- Implémenter exécution parallèle par batch
+- Créer pool de workers configurables
+- Gérer backpressure et rate limiting
+- Optimiser allocation ressources
+
+### Livrables
+- [ ] orchestrator/parallel_executor.py avec pool management
+- [ ] Worker pool auto-scaling
+- [ ] Resource allocation policies
+- [ ] Performance profiling tools
+- [ ] Load balancing strategies
+- [ ] Tests de stress
+
+### Critères d'Acceptation
+- [ ] 10x plus rapide sur DAG > 50 tâches
+- [ ] Pas de resource starvation
+- [ ] Métriques saturation temps réel
+- [ ] Tests stress 100+ tâches concurrentes
+- [ ] Auto-scaling fonctionnel
+- [ ] Graceful degradation sous charge
+```
+
+## Issue #23
+```markdown
+Title: Phase 22: External Agent Plugin System
+
+Description: Système de plugins pour agents externes. Extensibilité sans modification du core.
+
+## Durée: 3 jours
+## Priorité: BASSE
+## Labels: phase:enterprise, priority:low, type:feature
+## Prérequis: Phase 21 complétée
+
+### Objectifs
+- Permettre ajout agents externes
+- Sandbox testing obligatoire
+- Isolation réseau configurable
+- Monitoring continu performances
+
+### Livrables
+- [ ] services/agent_registry/plugins.py avec API découverte
+- [ ] services/network/policies.yaml pour isolation
+- [ ] Onboarding workflow automatisé
+- [ ] Scoring et certification
+- [ ] Monitoring dashboard
+- [ ] Documentation plugin SDK
+
+### Critères d'Acceptation
+- [ ] Discovery endpoint standard
+- [ ] Sandbox score > 75% requis
+- [ ] Network policies appliquées
+- [ ] Revocation automatique si dégradation
+- [ ] Métriques par plugin
+- [ ] SDK avec exemples
+```
+
+## Issue #24
+```markdown
+Title: Phase 23: CreativeEnhancementAgent
+
+Description: Agent d'amélioration créative optionnelle. Suggère optimisations sans modifier les specs.
+
+## Durée: 2 jours
+## Priorité: BASSE
+## Labels: phase:enterprise, priority:low, type:feature
+## Prérequis: Phase 22 complétée
+
+### Objectifs
+- Générer suggestions d'amélioration
+- Créer variantes créatives
+- Respecter strictement le plan original
+- Rester optionnel (opt-in)
+
+### Livrables
+- [ ] agents/creative_enhancement/ avec logique suggestion
+- [ ] Policies opt-in par projet
+- [ ] Filtrage et validation suggestions
+- [ ] Scoring des améliorations
+- [ ] Traçabilité complète
+- [ ] UI toggle on/off
+
+### Critères d'Acceptation
+- [ ] Ne modifie JAMAIS les specs core
+- [ ] Maximum 3 variantes suggérées
+- [ ] Toutes suggestions tracées
+- [ ] Désactivable globalement
+- [ ] Coût < 10% supplémentaire
+- [ ] Amélioration mesurable si appliquée
+```
+
+## Issue #25
+```markdown
+Title: Phase 24: Observabilité Production
+
+Description: Stack complète d'observabilité pour production. Monitoring, alerting, dashboards.
+
+## Durée: 4 jours
+## Priorité: HAUTE
+## Labels: phase:enterprise, priority:high, type:infrastructure
+## Prérequis: Phase 23 complétée
+
+### Objectifs
+- Déployer stack Prometheus/Grafana
+- Configurer logs ELK/OpenSearch
+- Créer dashboards métier
+- Configurer alerting intelligent
+
+### Livrables
+- [ ] infra/observability/ avec configs Prometheus/Grafana
+- [ ] Dashboards JSON pour tous les KPIs
+- [ ] Alert rules avec escalation
+- [ ] Log aggregation et indexation
+- [ ] Distributed tracing setup
+- [ ] docs/observability.md complet
+
+### Critères d'Acceptation
+- [ ] Métriques exposées et collectées
+- [ ] Dashboards SLO/SLI opérationnels
+- [ ] Alertes critiques < 1min détection
+- [ ] Logs searchable sur 30 jours
+- [ ] Traces corrélées end-to-end
+- [ ] Documentation runbooks alertes
+```
+
+## Issue #26
+```markdown
+Title: Phase 25: SLOs & Costing
+
+Description: Définition et monitoring des SLOs. Tracking précis des coûts par exécution.
+
+## Durée: 3 jours
+## Priorité: HAUTE
+## Labels: phase:enterprise, priority:high, type:feature
+## Prérequis: Phase 24 complétée
+
+### Objectifs
+- Définir SLOs métier critiques
+- Implémenter cost tracking détaillé
+- Créer budget alerts
+- Générer rapports automatiques
+
+### Livrables
+- [ ] services/metrics/kpis.py avec calculs SLO
+- [ ] services/costing/tracker.py pour coûts temps réel
+- [ ] Budget caps avec kill switch
+- [ ] Rapports CSV/JSON périodiques
+- [ ] Dashboard costing dédié
+- [ ] Alertes dépassement budget
+
+### Critères d'Acceptation
+- [ ] Coût tracked par agent/tâche/projet
+- [ ] Budget enforced avec arrêt gracieux
+- [ ] SLOs: completion >90%, escalation <10%
+- [ ] Rapports générés quotidiennement
+- [ ] Alertes avant dépassement (80% budget)
+- [ ] Export comptable disponible
+```
+
+## Issue #27
+```markdown
+Title: Phase 26: Durcissement Production & Gouvernance
+
+Description: Finalisation pour production enterprise. Sécurité, conformité, et procédures opérationnelles.
+
+## Durée: 5 jours
+## Priorité: CRITIQUE
+## Labels: phase:enterprise, priority:critical, type:infrastructure
+## Prérequis: Phase 25 complétée
+
+### Objectifs
+- Implémenter signature cryptographique agents
+- Automatiser backups complets
+- Tester disaster recovery
+- Exécuter chaos engineering
+- Documenter gouvernance
+
+### Livrables
+- [ ] services/agent_registry/signing.py pour signature agents
+- [ ] Backup automatisé (DB, configs, artifacts)
+- [ ] Disaster recovery playbooks
+- [ ] Chaos tests (Chaos Monkey adapté)
+- [ ] docs/governance.md avec policies
+- [ ] Runbooks SRE complets
+
+### Critères d'Acceptation
+- [ ] Agents non-signés refusés automatiquement
+- [ ] Backup testé avec restore < 1 heure
+- [ ] RTO < 1 heure vérifié
+- [ ] RPO < 15 minutes atteint
+- [ ] Game day simulation réussie
+- [ ] Audit sécurité externe passé
+- [ ] Documentation certifiée complète
+```

@@ -20,3 +20,24 @@
 - [x] Health-check périodique (30s par défaut) & `tick()` manuel
 - [x] Schémas Pydantic JSON générés et versionnés
 - [x] Tests d’intégration verts (CI)
+
+### Vérification rapide (local)
+
+```bash
+python scripts/gen_agent_schema.py
+pytest -q tests/test_agent_registry.py tests/test_agent_schema.py
+```
+
+scripts/gen_agent_schema.py écrit schemas/agent_registry.schema.json.
+
+Les tests couvrent registre/health et la stabilité du schéma.
+
+### Notes de release (préparation v0.3.0)
+
+Nouveau : AgentRegistry v1 (registre en mémoire), HealthMonitor (tick + thread), 3 agents (echo/ping/counter)
+
+Schemas : schemas/agent_registry.schema.json généré depuis Pydantic
+
+Tests : intégration (registre/health/schéma)
+
+CI : lint + tests, Phase 2 + 3
