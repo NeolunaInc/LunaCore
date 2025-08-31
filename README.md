@@ -9,6 +9,15 @@ Socle d’orchestration d’agents (**Runtime unique : Python 3.12** / FastAPI) 
 - [MASTER PLAN (Phases 2→26)](docs/PHASES/MASTER_PLAN.md)
 - [Phase 2 — TaskGraph](docs/PHASES/phase-2-taskgraph.md)
 
+## 📚 Documentation
+
+- [Status Phase 1](docs/STATUS_PHASE1.md)
+- [Roadmap complète (0→26)](docs/PHASES_FULL.md)
+- [Setup & Dépendances](docs/SETUP_DEPENDENCIES.md)
+- [Exports (Markdown/ZIP/SHA256)](docs/EXPORTS.md)
+- [Master Identité (référence)](docs/MASTER_IDENTITE.md)
+- [Contributing](docs/CONTRIBUTING.md)
+
 ## Démarrage rapide
 
 ```bash
