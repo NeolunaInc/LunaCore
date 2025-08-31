@@ -3,11 +3,11 @@
 Socle d’orchestration d’agents (**Runtime unique : Python 3.12** / FastAPI) avec outillage dev (Poetry, pre-commit, black/ruff, pytest).
 
 ## Installation rapide
-Voir [docs/SETUP.md](docs/SETUP.md) pour le guide complet d'installation.
-
-Voir [docs/OPS.md](docs/OPS.md) pour les opérations courantes.
-
-Voir [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) pour les dépendances détaillées.
+- [SETUP](docs/SETUP.md) — OS, Python 3.12, Docker, Poetry
+- [OPS](docs/OPS.md) — runbooks dev/QA
+- [DEPENDENCIES](docs/DEPENDENCIES.md)
+- [MASTER PLAN (Phases 2→26)](docs/PHASES/MASTER_PLAN.md)
+- [Phase 2 — TaskGraph](docs/PHASES/phase-2-taskgraph.md)
 
 ## Démarrage rapide
 

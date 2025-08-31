@@ -1,85 +1,107 @@
-# Setup Guide
+# SETUP — LunaCore (Python 3.12 only / FastAPI)
 
-## Prérequis OS
-- **Ubuntu 22.04/24.04 LTS** (recommandé)
-- **WSL2 (Ubuntu)** (Windows)
-- **macOS 13+** (optionnel, via Homebrew)
+Ce document décrit l’installation **poste dev** et les prérequis d’exécution locale.
 
-## Ressources système
-- **CPU**: 4+ cœurs
-- **RAM**: 8 Go+ (16 Go recommandé si Ollama)
-- **Disque**: 10 Go+ SSD
+## 1) Plateformes supportées
+- Ubuntu 22.04 / 24.04 LTS (✅ recommandé)
+- WSL2 (Ubuntu) sous Windows 11 (✅)
+- macOS 13+ (Apple Silicon/Intel) (✅)
 
-## Outils système (installer via sudo apt)
+**Ressources minimales** : CPU 4 vCPU, RAM 8 Go (16 Go si usage Ollama), disque 10 Go+.  
+**Réseau** : accès GitHub, registries Docker.
+
+## 2) Outils & paquets système
+
+### Ubuntu/WSL (à exécuter avec `sudo`)
 ```bash
-sudo apt update
-sudo apt install -y build-essential git curl make jq unzip
-sudo apt install -y docker.io docker-compose-v2  # ou Docker Engine officiel
-sudo apt install -y gh  # GitHub CLI
-sudo apt install -y libpq-dev pkg-config  # pour clients Postgres
-```
+apt-get update
+apt-get install -y --no-install-recommends \
+  build-essential git curl make jq unzip ca-certificates gnupg lsb-release \
+  pkg-config libpq-dev software-properties-common
+# Docker Engine + Compose v2 (méthode officielle conseillée)
+# Voir: https://docs.docker.com/engine/install/ubuntu/ (ajout du repo Docker)
+# Ou, simple (moins “prod”):
+# curl -fsSL https://get.docker.com | sh
+# Ajout groupe docker (relogin nécessaire)
+usermod -aG docker "$USER" || true
+# GitHub CLI (gh)
+type -p apt-add-repository >/dev/null || apt-get install -y software-properties-common
+apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0 || true
+apt-add-repository -y ppa:github-cli/ppa && apt-get update
+apt-get install -y gh
 
-## Python (option 1: pyenv recommandé)
-```bash
+macOS (Homebrew)
+xcode-select --install || true
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install git curl jq coreutils docker gh
+# Docker Desktop conseillé pour macOS
+
+Python (3.12.x)
+
+Option 1 — pyenv (recommandé) :
+
 curl https://pyenv.run | bash
-# Ajouter à ~/.bashrc : export PATH="$HOME/.pyenv/bin:$PATH"
+# Ajouter à ton shell (~/.bashrc ou ~/.zshrc) :
+# export PATH="$HOME/.pyenv/bin:$PATH"
 # eval "$(pyenv init -)"
-pyenv install 3.12.7  # version testée
-pyenv global 3.12.7
-```
+# eval "$(pyenv virtualenv-init -)"
+pyenv install 3.12.5
+pyenv local 3.12.5
 
-## Python (option 2: PPA deadsnakes)
-```bash
-sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt update
-sudo apt install python3.12 python3.12-venv
-```
 
-## Outils applicatifs
-- **Poetry** (>= 1.7): `pipx install poetry`
-- **Ollama** (hôte): Télécharger depuis ollama.ai, port 11434
-- **Postgres/Redis**: Via docker compose
+Option 2 — PPA deadsnakes (Ubuntu) :
 
-## Versions minimales et testées
-| Package | Rôle | Contrainte min | Version testée |
-|---------|------|----------------|----------------|
-| fastapi | API web | ^0.115.0 | 0.115.14 |
-| pydantic | Schémas/validation | ^2.8.0 | 2.11.7 |
-| uvicorn | Serveur ASGI | ^0.30.0 | 0.30.6 |
-| loguru | Logging | ^0.7.2 | 0.7.3 |
-| python-json-logger | Logs JSON | ^2.0.7 | 2.0.7 |
-| black | Formatage | ^24.4.2 | 24.10.0 |
-| ruff | Linting | ^0.5.4 | 0.5.7 |
-| pytest | Tests | ^8.3.0 | 8.4.1 |
-| mypy | Typage | ^1.11.0 | 1.17.1 |
-| pre-commit | Hooks | ^3.7.1 | 3.8.0 |
+add-apt-repository -y ppa:deadsnakes/ppa && apt-get update
+apt-get install -y python3.12 python3.12-venv python3.12-dev
 
-## Variables d’environnement
-- `OLLAMA_BASE_URL`: http://localhost:11434 (défaut)
-- *(Réservé phases futures: DB_URL, REDIS_URL)*
+Poetry & utilitaires
+pip install -U pip pipx
+pipx ensurepath
+pipx install poetry
 
-## Étapes d’installation (sans sudo)
-```bash
+3) Dépendances applicatives (Services)
+
+PostgreSQL et Redis : via docker compose (fourni).
+
+Ollama : par défaut sur l’hôte (port 11434).
+
+Vérifier : curl -s http://localhost:11434/api/tags.
+
+4) Variables d’environnement
+
+OLLAMA_BASE_URL (défaut: http://localhost:11434)
+
+Slots futurs : DATABASE_URL (Postgres), REDIS_URL
+
+Ajouter dans .env à la racine :
+
+echo 'OLLAMA_BASE_URL=http://localhost:11434' >> .env
+
+5) Installation projet
 poetry install
 poetry run pre-commit install
-make run-api  # puis curl http://localhost:8000/healthz
 make fmt && make lint && make test
-```
+make run-api     # → GET http://localhost:8000/healthz doit renvoyer {"status":"ok"}
 
-## Docker Compose
-Services: db (Postgres), redis, ollama (volumes persistants, ports exposés).
-
-```bash
+6) Docker compose (db/redis)
 docker compose up -d db redis
-# Vérifier Ollama: curl -s http://localhost:11434/api/tags
-```
+docker ps --format 'table {{.Names}}\t{{.Ports}}\t{{.Status}}'
+# db → 5432/tcp ; redis → 6379/tcp
 
-## CI
-- Python 3.12 only (`.github/workflows/ci.yml`)
-- Outils: ruff, black, pytest
+7) Problèmes fréquents
 
-## Troubleshooting
-- **Ports occupés**: `lsof -i :8000` ou `netstat -tulpn`
-- **Droits Docker**: `sudo usermod -aG docker $USER`
-- **pyenv shims**: `pyenv rehash`
-- **Proxy**: Configurer `http_proxy`/`https_proxy`
+Permission Docker : exécute sudo usermod -aG docker $USER puis relogin.
+
+Port occupé : ss -ltnp | grep :5432 (ou 6379/11434).
+
+WSL horloge/FS : wsl --shutdown puis relancer.
+
+Proxy : configurer HTTP(S)_PROXY + pip config set global.proxy ....
+
+8) CI & Qualité
+
+Runtime unique : Python 3.12 (CI GitHub Actions).
+
+Outils : ruff, black, pytest, pre-commit.
+
+Avant PR : make fmt && make lint && make test.

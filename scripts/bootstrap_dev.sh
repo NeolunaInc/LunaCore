@@ -1,51 +1,27 @@
-#!/bin/bash
-# Bootstrap script for LunaCore dev environment
-# Run with: bash scripts/bootstrap_dev.sh
-# This script is in echo-only mode for documentation
-
+#!/usr/bin/env bash
 set -euo pipefail
+echo "== LunaCore bootstrap (read-only guidance) =="
+echo "Sections:"
+cat <<'TXT'
+1) Ubuntu/WSL packages (sudo):
+   sudo apt-get update
+   sudo apt-get install -y \
+     build-essential git curl make jq unzip ca-certificates gnupg lsb-release \
+     pkg-config libpq-dev software-properties-common
+   # Docker, gh: voir docs/SETUP.md
 
-echo "=== LunaCore Dev Bootstrap ==="
-echo "This script documents the setup steps."
-echo "Run each command manually or uncomment as needed."
-echo ""
+2) Python 3.12 via pyenv:
+   curl https://pyenv.run | bash
+   pyenv install 3.12.5 && pyenv local 3.12.5
 
-echo "1. System dependencies (requires sudo):"
-echo "# sudo apt update"
-echo "# sudo apt install -y build-essential git curl make jq unzip"
-echo "# sudo apt install -y docker.io docker-compose-v2"
-echo "# sudo apt install -y gh libpq-dev pkg-config"
-echo ""
+3) Poetry:
+   pip install -U pip pipx && pipx ensurepath && pipx install poetry
 
-echo "2. Python via pyenv:"
-echo "# curl https://pyenv.run | bash"
-echo "# echo 'export PATH=\"\$HOME/.pyenv/bin:\$PATH\"' >> ~/.bashrc"
-echo "# echo 'eval \"\$(pyenv init -)\"' >> ~/.bashrc"
-echo "# source ~/.bashrc"
-echo "# pyenv install 3.12.7"
-echo "# pyenv global 3.12.7"
-echo ""
+4) Projet:
+   poetry install && poetry run pre-commit install
+   docker compose up -d db redis
+   make run-api   # GET /healthz
 
-echo "3. Poetry:"
-echo "# pipx install poetry"
-echo "# poetry --version"
-echo ""
-
-echo "4. Verifications:"
-echo "# docker --version"
-echo "# gh --version"
-echo "# python --version"
-echo "# poetry --version"
-echo ""
-
-echo "5. Project setup:"
-echo "# poetry install"
-echo "# poetry run pre-commit install"
-echo ""
-
-echo "6. Test run:"
-echo "# make run-api"
-echo "# curl http://localhost:8000/healthz"
-echo ""
-
-echo "Bootstrap complete! See docs/SETUP.md for details."
+5) Qualité:
+   make fmt && make lint && make test
+TXT
