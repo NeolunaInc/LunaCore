@@ -11,6 +11,10 @@ jobs:
           python-version: "3.12"
       - name: Install Poetry
         run: pipx install poetry
+      - name: Force Poetry to use runner Python
+        run: poetry env use $(python -c "import sys; print(sys.executable)")
+      - name: Ensure lock matches pyproject (auto-fix if needed)
+        run: poetry check --lock || poetry lock --no-update
       - name: Install deps
         run: poetry install
       - name: Lint
