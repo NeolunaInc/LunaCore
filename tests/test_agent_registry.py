@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 
 from agents.basic import CounterAgent, EchoAgent, PingAgent
-from services.agent_registry import HealthMonitor, AgentRegistry
+from services.agent_registry import AgentRegistry, HealthMonitor
 
 
 def test_register_unregister_and_list():
@@ -35,7 +35,7 @@ def test_health_tick_updates_status():
     for rec in r.list():
         assert rec.status.healthy in {"healthy", "unhealthy"}
         assert rec.status.last_seen is not None
-        assert isinstance(rec.status.details, (str, type(None)))
+        assert isinstance(rec.status.details, str | type(None))
 
 
 def test_health_monitor_thread_start_stop():
@@ -46,4 +46,6 @@ def test_health_monitor_thread_start_stop():
     m.start()
     time.sleep(0.12)
     m.stop()
-    assert r.get("echo").status.details is not None
+    rec = r.get("echo")
+    assert rec is not None
+    assert rec.status.details is not None
