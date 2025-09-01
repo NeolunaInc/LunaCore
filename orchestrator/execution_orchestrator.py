@@ -16,14 +16,7 @@ class ExecutionOrchestrator:
         self.allocator = allocator
 
     async def execute_plan(self, steps: list[dict[str, Any]]) -> list[Any]:
-        """Execute a plan of steps sequentially.
-
-        Args:
-            steps: List of step dictionaries with 'id', 'callable', etc.
-
-        Returns:
-            List of results from each step
-        """
+        """Execute a plan of steps sequentially."""
         results: list[Any] = []
 
         for i, step in enumerate(steps):
