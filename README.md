@@ -8,6 +8,8 @@ Socle d’orchestration d’agents (**Runtime unique : Python 3.12** / FastAPI) 
 - [DEPENDENCIES](docs/DEPENDENCIES.md)
 - [MASTER PLAN (Phases 2→26)](docs/PHASES/MASTER_PLAN.md)
 - [Phase 2 — TaskGraph](docs/PHASES/phase-2-taskgraph.md)
+- [Phase 5 — ProjectMemory](docs/PHASES/phase-5-projectmemory.md)
+- [ProjectMemory API](docs/memory.md)
 
 ## Démarrage rapide
 

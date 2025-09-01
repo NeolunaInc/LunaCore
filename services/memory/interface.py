@@ -13,7 +13,7 @@ class ProjectMemory(ABC):
 
         Args:
             acl_check: Function(tenant_id, project_id, key, operation) -> bool
-                      Defaults to lambda: True
+                      Defaults to a function that always returns True.
         """
         self.acl_check = acl_check or (lambda *args: True)
 
@@ -28,6 +28,7 @@ class ProjectMemory(ABC):
         artifact_type: str = "data",
     ) -> Artifact:
         """Store an artifact and return it with generated metadata."""
+        pass
 
     @abstractmethod
     async def get(
@@ -38,6 +39,7 @@ class ProjectMemory(ABC):
         project_id: str = "default",
     ) -> Artifact | None:
         """Retrieve an artifact by key and optional version."""
+        pass
 
     @abstractmethod
     async def list_versions(
@@ -46,4 +48,16 @@ class ProjectMemory(ABC):
         tenant_id: str = "default",
         project_id: str = "default",
     ) -> list[int]:
-        """List all versions for a given key."""
+        """List all available versions for a key."""
+        pass
+
+    @abstractmethod
+    async def delete(
+        self,
+        key: str,
+        version: int | None = None,
+        tenant_id: str = "default",
+        project_id: str = "default",
+    ) -> bool:
+        """Delete an artifact or all versions of a key."""
+        pass
