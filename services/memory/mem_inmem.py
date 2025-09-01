@@ -1,4 +1,7 @@
+import asyncio
+import uuid
 from collections.abc import Callable
+from datetime import datetime
 from typing import Any
 
 from core.artifacts import Artifact
@@ -10,7 +13,9 @@ class InMemProjectMemory(ProjectMemory):
 
     def __init__(self, acl_check: Callable[[str, str, str, str], bool] | None = None):
         super().__init__(acl_check)
-        self._storage: dict[str, list[Artifact]] = {}
+        self._store: dict[tuple[str, str, str], dict[int, Artifact]] = {}
+        self._versions: dict[tuple[str, str, str], int] = {}
+        self._lock = asyncio.Lock()
 
     async def put(
         self,
@@ -21,25 +26,42 @@ class InMemProjectMemory(ProjectMemory):
         project_id: str = "default",
         artifact_type: str = "data",
     ) -> Artifact:
-        """Store an artifact with versioning."""
-        if key not in self._storage:
-            self._storage[key] = []
+        """Store an artifact in memory."""
+        if not self.acl_check(tenant_id, project_id, key, "write"):
+            raise PermissionError(f"Access denied for {tenant_id}/{project_id}/{key}")
 
-        versions = self._storage[key]
-        new_version = len(versions) + 1
+        async with self._lock:
+            store_key = (tenant_id, project_id, key)
+            if store_key not in self._versions:
+                self._versions[store_key] = 0
+                self._store[store_key] = {}
 
-        artifact = Artifact(
-            key=key,
-            data=data,
-            meta=meta or {},
-            tenant_id=tenant_id,
-            project_id=project_id,
-            artifact_type=artifact_type,
-            version=new_version,
-        )
+            version = self._versions[store_key] + 1
+            self._versions[store_key] = version
 
-        versions.append(artifact)
-        return artifact
+            # Merge meta from previous version
+            new_meta: dict[str, Any] = {}
+            if self._store[store_key]:
+                latest_version = max(self._store[store_key].keys())
+                prev_art = self._store[store_key][latest_version]
+                new_meta.update(prev_art.meta)
+            if meta:
+                new_meta.update(meta)
+
+            artifact = Artifact(
+                id=str(uuid.uuid4()),
+                type=artifact_type,
+                tenant_id=tenant_id,
+                project_id=project_id,
+                key=key,
+                version=version,
+                created_at=datetime.utcnow(),
+                meta=new_meta,
+                data=data,
+            )
+
+            self._store[store_key][version] = artifact
+            return artifact
 
     async def get(
         self,
@@ -48,30 +70,60 @@ class InMemProjectMemory(ProjectMemory):
         tenant_id: str = "default",
         project_id: str = "default",
     ) -> Artifact | None:
-        """Retrieve an artifact by key and version."""
-        if key not in self._storage:
-            return None
+        """Retrieve an artifact from memory."""
+        if not self.acl_check(tenant_id, project_id, key, "read"):
+            raise PermissionError(f"Access denied for {tenant_id}/{project_id}/{key}")
 
-        versions = self._storage[key]
-        if not versions:
+        store_key = (tenant_id, project_id, key)
+        if store_key not in self._store:
             return None
 
         if version is None:
-            return versions[-1]  # Latest version
+            # Get latest version
+            version = max(self._store[store_key].keys())
 
-        if 1 <= version <= len(versions):
-            return versions[version - 1]
-
-        return None
+        return self._store[store_key].get(version)
 
     async def list_versions(
-        self,
-        key: str,
-        tenant_id: str = "default",
-        project_id: str = "default",
+        self, key: str, tenant_id: str = "default", project_id: str = "default"
     ) -> list[int]:
         """List all versions for a key."""
-        if key not in self._storage:
-            return []
+        if not self.acl_check(tenant_id, project_id, key, "list"):
+            raise PermissionError(f"Access denied for {tenant_id}/{project_id}/{key}")
 
-        return list(range(1, len(self._storage[key]) + 1))
+        store_key = (tenant_id, project_id, key)
+        if store_key not in self._store:
+            return []
+        return sorted(self._store[store_key].keys())
+
+    async def delete(
+        self,
+        key: str,
+        version: int | None = None,
+        tenant_id: str = "default",
+        project_id: str = "default",
+    ) -> bool:
+        """Delete an artifact or all versions."""
+        if not self.acl_check(tenant_id, project_id, key, "delete"):
+            raise PermissionError(f"Access denied for {tenant_id}/{project_id}/{key}")
+
+        async with self._lock:
+            store_key = (tenant_id, project_id, key)
+            if store_key not in self._store:
+                return False
+
+            if version is None:
+                # Delete all versions
+                del self._store[store_key]
+                del self._versions[store_key]
+                return True
+            else:
+                # Delete specific version
+                if version in self._store[store_key]:
+                    del self._store[store_key][version]
+                    # If no versions left, clean up
+                    if not self._store[store_key]:
+                        del self._store[store_key]
+                        del self._versions[store_key]
+                    return True
+                return False
