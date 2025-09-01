@@ -1,0 +1,56 @@
+name: Deploy LunaCore
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: poetry install
+    - name: Run tests
+      run: poetry run pytest
+    - name: Security scan with Bandit
+      run: |
+        poetry add bandit
+        poetry run bandit -r . -f json -o bandit-report.json || true
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v4
+      with:
+        name: bandit-report
+        path: bandit-report.json
+
+  deploy-staging:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+    - uses: actions/checkout@v4
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment"
+        # Placeholder: Add actual deployment commands here, e.g., docker push, kubectl, etc.
+
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    - uses: actions/checkout@v4
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment"
+        # Placeholder: Add actual deployment commands here

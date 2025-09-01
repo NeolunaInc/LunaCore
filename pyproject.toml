@@ -31,10 +31,12 @@ target-version = ["py312"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-select = ["E","F","I","UP","B","SIM","W"]
-ignore = []
 fix = true
 exclude = ["venv",".venv",".git"]
+
+[tool.ruff.lint]
+select = ["E","F","I","UP","B","SIM","W"]
+ignore = ["SIM117"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
