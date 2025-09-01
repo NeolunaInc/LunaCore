@@ -13,7 +13,7 @@ class ProjectMemory(ABC):
 
         Args:
             acl_check: Function(tenant_id, project_id, key, operation) -> bool
-                      Defaults to lambda: True
+                      Defaults to a function that always returns True.
         """
         self.acl_check = acl_check or (lambda *args: True)
 
@@ -43,7 +43,10 @@ class ProjectMemory(ABC):
 
     @abstractmethod
     async def list_versions(
-        self, key: str, tenant_id: str = "default", project_id: str = "default"
+        self,
+        key: str,
+        tenant_id: str = "default",
+        project_id: str = "default",
     ) -> list[int]:
         """List all available versions for a key."""
         pass

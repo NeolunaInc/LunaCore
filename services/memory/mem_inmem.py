@@ -40,7 +40,7 @@ class InMemProjectMemory(ProjectMemory):
             self._versions[store_key] = version
 
             # Merge meta from previous version
-            new_meta = {}
+            new_meta: dict[str, Any] = {}
             if self._store[store_key]:
                 latest_version = max(self._store[store_key].keys())
                 prev_art = self._store[store_key][latest_version]
