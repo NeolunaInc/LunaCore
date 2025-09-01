@@ -16,17 +16,23 @@ class ExecutionOrchestrator:
         self.allocator = allocator
 
     async def execute_plan(self, steps: list[dict[str, Any]]) -> list[Any]:
-        """Execute a plan of steps sequentially."""
-        results: list[Any] = []
+        """Execute a plan of steps sequentially.
+
+        Args:
+            steps: List of step dictionaries with 'id', 'callable', etc.
+
+        Returns:
+            List of results from each step
+        """
+        results = []
 
         for i, step in enumerate(steps):
             step_id = step.get("id", f"step_{i}")
             callable_func = self.allocator.resolve(step)
-
             options = step.get("options", {})
             retries = options.get("retries", 0)
             timeout = options.get("timeout", None)
-            retry_backoff = options.get("retry_backoff", "fixed")  # 'fixed' | 'exponential'
+            retry_backoff = options.get("retry_backoff", "fixed")
             backoff_base = options.get("backoff_base", 0.05)
             escalate_on_failure = options.get("escalate_on_failure", False)
 
@@ -42,13 +48,15 @@ class ExecutionOrchestrator:
                     # Execute the callable with timeout if specified
                     is_async = asyncio.iscoroutinefunction(callable_func) or (
                         callable(callable_func)
-                        and asyncio.iscoroutinefunction(getattr(callable_func, "__call__", None))
+                        and asyncio.iscoroutinefunction(callable_func.__call__)
                     )
                     if timeout is not None:
                         if is_async:
                             result = await asyncio.wait_for(callable_func(), timeout)
                         else:
-                            result = await asyncio.wait_for(asyncio.to_thread(callable_func), timeout)
+                            result = await asyncio.wait_for(
+                                asyncio.to_thread(callable_func), timeout
+                            )
                     else:
                         if is_async:
                             result = await callable_func()
@@ -59,7 +67,7 @@ class ExecutionOrchestrator:
                     await self.memory.put(
                         key=f"task:{step_id}",
                         data=str(result),
-                        meta={"step": i, "step_id": step_id, "attempt": attempt},
+                        meta={"step": i, "step_id": step_id},
                         artifact_type="task_result",
                     )
                     completed_event = TaskCompletedEvent(task_id=step_id, result=result)
@@ -69,6 +77,7 @@ class ExecutionOrchestrator:
 
                 except Exception as e:
                     error_str = str(e)
+                    # Emit task failed event
                     failed_event = TaskFailedEvent(task_id=step_id, error=error_str)
                     await self.bus.emit(failed_event)
 
@@ -80,10 +89,13 @@ class ExecutionOrchestrator:
                             backoff = backoff_base
                         await asyncio.sleep(backoff)
                     else:
+                        # Final failure
                         if escalate_on_failure:
-                            escalation_event = EscalationNeededEvent(task_id=step_id, reason=error_str)
+                            escalation_event = EscalationNeededEvent(
+                                task_id=step_id, reason=error_str
+                            )
                             await self.bus.emit(escalation_event)
-                        raise  # Stop the plan on final failure
+                        raise  # Re-raise to stop the plan
 
             if success:
                 results.append(result)

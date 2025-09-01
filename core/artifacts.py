@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class ArtifactId(BaseModel):
     """Unique identifier for an artifact."""
+
     tenant_id: str
     project_id: str
     key: str
@@ -15,6 +16,7 @@ class ArtifactId(BaseModel):
 
 class Artifact(BaseModel):
     """Represents a stored artifact with metadata."""
+
     id: str  # Unique artifact ID
     type: str  # Artifact type (e.g., "document", "model", "config")
     tenant_id: str
