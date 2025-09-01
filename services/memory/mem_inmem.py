@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
@@ -10,10 +11,10 @@ from services.memory.interface import ProjectMemory
 class InMemProjectMemory(ProjectMemory):
     """In-memory implementation of ProjectMemory with versioning."""
 
-    def __init__(self, acl_check=None):
+    def __init__(self, acl_check: Callable[[str, str, str, str], bool] | None = None):
         super().__init__(acl_check)
-        self._versions: dict[tuple[str, str, str], int] = {}
         self._store: dict[tuple[str, str, str], dict[int, Artifact]] = {}
+        self._versions: dict[tuple[str, str, str], int] = {}
         self._lock = asyncio.Lock()
 
     async def put(
@@ -39,7 +40,7 @@ class InMemProjectMemory(ProjectMemory):
             self._versions[store_key] = version
 
             # Merge meta from previous version
-            new_meta = {}
+            new_meta: dict[str, Any] = {}
             if self._store[store_key]:
                 latest_version = max(self._store[store_key].keys())
                 prev_art = self._store[store_key][latest_version]
