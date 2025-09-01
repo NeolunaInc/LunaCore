@@ -1,0 +1,9 @@
+name: Example Plugin
+version: 1.0.0
+description: An example plugin for LunaCore
+author: NeoLunaInc
+agents:
+  - name: example_agent
+    type: custom
+    description: A sample agent
+    entry_point: example_plugin.agent:ExampleAgent
