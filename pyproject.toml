@@ -13,6 +13,8 @@ pydantic = {version="^2.8.0", extras=["dotenv"]}
 uvicorn = {version="^0.30.0", extras=["standard"]}
 python-json-logger = "^2.0.7"
 loguru = "^0.7.2"
+cryptography = "^45.0.6"
+asyncpg = "^0.30.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
@@ -23,6 +25,7 @@ mypy = "^1.11.0"
 pre-commit = "^3.7.1"
 httpx = "^0.28.1"
 pytest-asyncio = "^1.1.0"
+types-pyyaml = "^6.0.12.20250822"
 
 [tool.black]
 line-length = 100
@@ -31,10 +34,12 @@ target-version = ["py312"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-select = ["E","F","I","UP","B","SIM","W"]
-ignore = []
 fix = true
 exclude = ["venv",".venv",".git"]
+
+[tool.ruff.lint]
+select = ["E","F","I","UP","B","SIM","W"]
+ignore = ["SIM117"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
